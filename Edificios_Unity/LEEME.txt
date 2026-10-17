@@ -1,0 +1,23 @@
+PNG para Unity 2D
+
+Granero.png: 1536 x 1024, nuevo diseño inspirado en el granero de referencia.
+Torre.png: 1306 x 1205, torre de piedra con puerta y musgo.
+Ambos archivos son PNG de 32 bits con canal alfa; se comprobó la presencia de píxeles transparentes.
+
+Importación sugerida en Unity:
+1. Arrastra los PNG a Assets.
+2. Texture Type: Sprite (2D and UI).
+3. Sprite Mode: Single.
+4. Activa Alpha Is Transparency.
+5. Filter Mode: Point (no filter).
+6. Compression: None.
+7. Max Size: 2048 para conservar la resolución.
+8. Pivot: Bottom para apoyar los edificios sobre el suelo.
+9. Ajusta Pixels Per Unit a la escala de tu juego y pulsa Apply.
+
+Estos archivos son imágenes 2D; los colliders se agregan en Unity si los necesitas.
+
+Creación: herramienta integrada image_gen.
+Prompts utilizados (resumen):
+- Granero: crear un diseño original de granero naranja con techo azul oscuro, puertas con molduras blancas, estilo pixel art, vista de tres cuartos y fondo alfa transparente.
+- Torre: extraer el fondo blanco, conservar la torre gris, puerta borgoña y musgo, mejorar la claridad de los píxeles y entregar transparencia alfa.

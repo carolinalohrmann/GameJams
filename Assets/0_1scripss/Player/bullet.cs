@@ -1,11 +1,15 @@
-﻿using UnityEngine;
+using UnityEngine;
+
 public class bullet : MonoBehaviour
 {
     bool hostile, spent;
     Collider2D owner;
-    public void Launch(Vector2 direction, Collider2D source, bool enemyShot, float speed)
+    int damage = 1;
+    public void Launch(Vector2 direction, Collider2D source, bool enemyShot, float speed, int hitDamage = 1)
     {
-        hostile = enemyShot; owner = source;
+        hostile = enemyShot;
+        damage = hitDamage;
+        owner = source;
         Physics2D.IgnoreCollision(GetComponent<Collider2D>(), source);
         GetComponent<Rigidbody2D>().linearVelocity = direction.normalized * speed;
         Destroy(gameObject, 3);
@@ -13,11 +17,12 @@ public class bullet : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         if (spent || other == owner || other.isTrigger || other.GetComponent<bullet>() != null) return;
-        var p = other.GetComponent<player>(); var enemy = other.GetComponent<Enemy>();
+        var p = other.GetComponent<player>();
+        var enemy = other.GetComponent<Enemy>();
         if ((hostile && enemy != null) || (!hostile && p != null)) return;
         spent = true;
         if (hostile && p != null) p.Damage();
-        if (!hostile && enemy != null) enemy.Damage();
+        if (!hostile && enemy != null) enemy.Damage(damage);
         Destroy(gameObject);
     }
 }

@@ -54,7 +54,7 @@ public static class ValidateTutorial
             if (checks.MoveNext()) next = Time.time + checks.Current;
             else
             {
-                Debug.Log("TUTORIAL_PLAYMODE_OK: weapon alignment both directions, large rocks, AK expires at 10s and ignores old saves, all 8 powerups, permanent health, timed feather, contact, death, return to start, barn");
+                Debug.Log("TUTORIAL_PLAYMODE_OK: generated route, three unique powerups, animated Flying Eye and melee enemies, weapons, health, death and completion");
                 Cleanup(); EditorApplication.Exit(0);
             }
         }
@@ -68,13 +68,18 @@ public static class ValidateTutorial
         Require(p.animator != null && p.animator.runtimeAnimatorController.animationClips.Length == 4, "Horse must have all 4 animation clips");
         Require(p.shootPoint.name == "shootp", "Original shooting point missing");
         var pickups = UnityEngine.Object.FindObjectsByType<PowerUp>();
-        Require(pickups.Length == 8 && pickups.Select(x => x.kind).Distinct().Count() == 8, "Eight distinct tutorial powerups required");
-        Require(GameObject.Find("Granero - meta") != null, "Barn missing");
+        var layout = UnityEngine.Object.FindAnyObjectByType<RandomLevelLayout>();
+        Require(layout != null && layout.AvailablePowerUps.Count == 3 &&
+            pickups.Length <= 3 && pickups.Select(x => x.kind).Distinct().Count() == pickups.Length,
+            "A run must offer at most three distinct powerups");
+        Require(GameObject.Find("Level 1 goal") != null, "Level 1 goal missing");
         Require(!System.IO.File.Exists("Assets/0_2prefafs/CharacterPhysics.physicsMaterial2D"), "Removed physics material returned");
-        var enemy = GameObject.Find("Skeleton - botiquin").GetComponent<Enemy>();
-        Require(enemy.animator != null, "Skeleton animations missing");
-        Require(GameObject.Find("Tirador provisional - resistencia").GetComponent<Enemy>().animator == null, "Ranged enemy should stay provisional");
-        var rangedTarget = GameObject.Find("Tirador provisional - AK").GetComponent<Enemy>();
+        var enemies = UnityEngine.Object.FindObjectsByType<Enemy>();
+        var enemy = enemies.FirstOrDefault(x => !x.ranged);
+        Require(enemy != null && enemy.animator != null, "Animated melee enemies missing");
+        var rangedTarget = enemies.FirstOrDefault(x => x.ranged);
+        Require(rangedTarget != null && rangedTarget.animator != null &&
+            rangedTarget.animator.runtimeAnimatorController.name == "FlyingEye", "Flying Eye ranged enemy missing");
         rangedTarget.enabled = false;
         rangedTarget.transform.position = new Vector3(p.transform.position.x + 2, -3.5f, 0);
         Physics2D.SyncTransforms();

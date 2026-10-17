@@ -5,6 +5,9 @@ public class LevelOne : MonoBehaviour
     public static LevelOne Instance { get; private set; }
     public player player;
     public Camera followCamera;
+    public RandomLevelLayout layout;
+    public int stageNumber = 1;
+    public string nextSceneName = "Level2";
     public bool Completed { get; private set; }
     public float endX = 116;
     public float leftEdge = -11, rightEdge = 124;

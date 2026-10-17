@@ -51,10 +51,14 @@ public static class ValidateTutorialCanvas
         Require(EventSystem.current != null && input != null && input.actionsAsset != null, "Canvas buttons need an active input module");
         Require(EventSystem.current.currentSelectedGameObject == ui.continueButton.gameObject, "Enter should select Continue rather than reopen the guide");
         var text = string.Join("\n", ui.guideContent.GetComponentsInChildren<Text>().Select(t => t.text));
-        foreach (string term in new[] { "Mover", "Saltar", "Disparar", "Pluma", "segundo salto", "Apple", "Botiquín", "Citrus", "Resistencia", "Camisa", "Lanzapiedra", "Sin límite de tiempo", "Chicken" }) Require(text.Contains(term), "Missing tutorial explanation: " + term);
-        Require(text.Contains("Clic izquierdo") && text.Contains("Pluma · 5 segundos") && !text.Contains("checkpoint") && !text.Contains("J /"), "Guide must explain the current controls and timed Feather");
-        var icons = ui.guideContent.GetComponentsInChildren<Image>().Where(i => i.name == "Icono").ToArray();
-        Require(icons.Length == 8 && icons.All(i => i.sprite != null), "Eight powerup illustrations required");
+        foreach (string term in new[] { "Mover", "Saltar", "Disparar" })
+            Require(text.Contains(term), "Missing control explanation: " + term);
+        Require(text.Contains("Clic izquierdo") && text.Contains("Usa los poderes de esta partida.") &&
+            !text.Contains("checkpoint") && !text.Contains("J /"), "Guide must explain current controls and generated powerups");
+        var icons = ui.guideContent.GetComponentsInChildren<Image>()
+            .Where(i => i.name == "Icono" && i.isActiveAndEnabled).ToArray();
+        Require(icons.Length == 3 && icons.All(i => i.sprite != null) &&
+            ui.level.layout.AvailablePowerUps.Count == 3, "Guide must show the three powerups generated for this run");
         ui.continueButton.onClick.Invoke();
         yield return 0.2f;
         Require(!ui.GuideOpen && Time.timeScale == 1 && !TutorialCanvasUI.BlocksGameplay, "Continue button should resume gameplay");

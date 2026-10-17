@@ -14,6 +14,7 @@ public class TutorialCanvasUI : MonoBehaviour
     public GameObject guidePanel, completionPanel;
     public RectTransform guideContent;
     public Text healthText, statusText, contextText, continueText;
+    public Text stageTitleText, stageObjectiveText, completionTitleText, completionDescriptionText;
     public Button guideButton, continueButton, restartButton;
     public bool GuideOpen => guidePanel != null && guidePanel.activeSelf;
     bool paused;
@@ -24,7 +25,9 @@ public class TutorialCanvasUI : MonoBehaviour
     {
         guideButton.onClick.AddListener(() => SetGuide(!GuideOpen));
         continueButton.onClick.AddListener(() => SetGuide(false));
-        restartButton.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex));
+        restartButton.onClick.AddListener(LoadNextStage);
+        ConfigureStageText();
+        ConfigurePowerUpGuide();
         guidePanel.SetActive(false);
         completionPanel.SetActive(false);
         SetGuide(showGuideOnStart);
@@ -63,9 +66,95 @@ public class TutorialCanvasUI : MonoBehaviour
                 if (distance < nearest) { nearest = distance; context = power.Title; }
             }
         }
-        contextText.text = context ?? "Llega al granero. Recoge los poderes para practicar.";
+        contextText.text = context ?? (level.stageNumber == 1
+            ? "Llega al granero. Recoge los poderes para practicar."
+            : "Llega a la salida. Recoge los poderes de esta partida.");
         completionPanel.SetActive(level.Completed && !GuideOpen);
     }
+    void ConfigureStageText()
+    {
+        if (stageTitleText != null) stageTitleText.text = "NIVEL " + level.stageNumber + "  /  APRENDE A JUGAR";
+        if (stageObjectiveText != null)
+            stageObjectiveText.text = level.stageNumber == 1
+                ? "Cruza la jungla y llega al granero."
+                : "Atraviesa el prado y llega a la salida.";
+        if (completionTitleText != null)
+            completionTitleText.text = "Nivel " + level.stageNumber + " completado";
+        if (completionDescriptionText != null)
+            completionDescriptionText.text = level.stageNumber == 1
+                ? "¡Bien! El bosque es la siguiente etapa."
+                : "¡Completaste los dos niveles!";
+        var actionLabel = restartButton.GetComponentInChildren<Text>();
+        if (actionLabel != null)
+            actionLabel.text = level.nextSceneName == "Level2" ? "Siguiente nivel" : "Jugar de nuevo";
+    }
+
+    void ConfigurePowerUpGuide()
+    {
+        if (level.layout == null || guideContent == null) return;
+        var kinds = level.layout.AvailablePowerUps;
+        var cards = new RectTransform[8];
+        for (int i = 0; i < cards.Length; i++)
+            cards[i] = guideContent.Find("Poder " + i) as RectTransform;
+
+        for (int i = 0; i < cards.Length; i++)
+        {
+            if (cards[i] == null) continue;
+            bool available = i < kinds.Count;
+            cards[i].gameObject.SetActive(available);
+            if (!available) continue;
+
+            var kind = kinds[i];
+            cards[i].anchoredPosition = new Vector2(i % 2 == 0 ? 28 : 488, -(194 + i / 2 * 76));
+            var icon = cards[i].Find("Icono").GetComponent<Image>();
+            icon.sprite = level.layout.powerUpIcons[(int)kind];
+            cards[i].Find("Nombre").GetComponent<Text>().text = PowerUpName(kind);
+            cards[i].Find("Explicacion").GetComponent<Text>().text = PowerUpDescription(kind);
+        }
+
+        var jumpHint = guideContent.Find("Doble salto");
+        if (jumpHint != null)
+            jumpHint.GetComponent<Text>().text = "Usa los poderes de esta partida.  R: volver al inicio.";
+    }
+
+    void LoadNextStage()
+    {
+        if (Application.CanStreamedLevelBeLoaded(level.nextSceneName))
+            SceneManager.LoadScene(level.nextSceneName);
+        else
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    static string PowerUpName(PowerUp.Kind kind)
+    {
+        switch (kind)
+        {
+            case PowerUp.Kind.Apple: return "Apple · permanente";
+            case PowerUp.Kind.Medkit: return "Botiquín · instantáneo";
+            case PowerUp.Kind.Citrus: return "Citrus · 10 segundos";
+            case PowerUp.Kind.Feather: return "Pluma · 5 segundos";
+            case PowerUp.Kind.Resistance: return "Resistencia · 10 segundos";
+            case PowerUp.Kind.Shirt: return "Camisa · 5 segundos";
+            case PowerUp.Kind.Rock: return "Lanzapiedra · 5 disparos";
+            default: return "Chicken / AK · 10 segundos";
+        }
+    }
+
+    static string PowerUpDescription(PowerUp.Kind kind)
+    {
+        switch (kind)
+        {
+            case PowerUp.Kind.Apple: return "+10 de vida máxima y actual.";
+            case PowerUp.Kind.Medkit: return "Cura 2 corazones.";
+            case PowerUp.Kind.Citrus: return "+50% movimiento y disparo.";
+            case PowerUp.Kind.Feather: return "Permite un segundo salto.";
+            case PowerUp.Kind.Resistance: return "Inmunidad temporal.";
+            case PowerUp.Kind.Shirt: return "Minigun rápida e ilimitada.";
+            case PowerUp.Kind.Rock: return "Cinco disparos letales.";
+            default: return "Disparo rápido por tiempo limitado.";
+        }
+    }
+
     public void SetGuide(bool open)
     {
         if (open)

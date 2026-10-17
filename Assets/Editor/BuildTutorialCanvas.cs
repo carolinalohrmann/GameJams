@@ -42,8 +42,8 @@ public static class BuildTutorialCanvas
         FillWidth(controls.rectTransform, 20);
         controls.color = muted;
         ui.completionPanel = Panel(root.transform, "Nivel completado", 400, 190, new Color(0.08f, 0.09f, 0.105f, 0.98f)).gameObject;
-        Label(ui.completionPanel.transform, "Titulo", "Nivel 1 completado", 24, 25, 352, 36, 26, true);
-        Label(ui.completionPanel.transform, "Detalle", "Has terminado el tutorial.", 24, 70, 352, 26, 17);
+        ui.completionTitleText = Label(ui.completionPanel.transform, "Titulo", "Nivel 1 completado", 24, 25, 352, 36, 26, true);
+        ui.completionDescriptionText = Label(ui.completionPanel.transform, "Detalle", "Has terminado el tutorial.", 24, 70, 352, 26, 17);
         ui.restartButton = Button(ui.completionPanel.transform, "Repetir", "Volver a jugar", 80, 125, 240, 40);
         ui.completionPanel.SetActive(false);
         var shade = new GameObject("Guia del tutorial", typeof(RectTransform), typeof(Image)); shade.transform.SetParent(root.transform, false);
@@ -52,8 +52,9 @@ public static class BuildTutorialCanvas
         ui.guidePanel = shade;
         var panel = Panel(shade.transform, "Guia", 960, 600, new Color(0.075f, 0.085f, 0.1f, 0.99f));
         ui.guideContent = panel;
-        Label(panel, "Titulo", "NIVEL 1  /  APRENDE A JUGAR", 28, 22, 900, 38, 29, true);
-        var subtitle = Label(panel, "Objetivo", "Llega al granero. Recoge y prueba cada poder por el camino.", 28, 68, 900, 28, 18); subtitle.color = muted;
+        ui.stageTitleText = Label(panel, "Titulo", "NIVEL 1  /  APRENDE A JUGAR", 28, 22, 900, 38, 29, true);
+        ui.stageObjectiveText = Label(panel, "Objetivo", "Llega al granero. Recoge y prueba cada poder por el camino.", 28, 68, 900, 28, 18);
+        ui.stageObjectiveText.color = muted;
         Label(panel, "Controles", "A / D o ← / →  Mover     Espacio / W / ↑  Saltar     Clic izquierdo  Disparar", 28, 112, 900, 28, 19, true);
         Label(panel, "Doble salto", "Con Pluma: vuelve a pulsar salto en el aire.  R: volver al inicio.", 28, 146, 900, 26, 17);
         string[] icons = { "apple.png", "botikin.png", "citrus.png", "pluma.png", "powerup resistencias.png", "camisa.png", "lanzpiedra.png", "Chicken.png" };

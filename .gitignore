@@ -6,6 +6,13 @@
 # See: https://github.com/github/gitignore/tree/main/Global
 #
 .utmp/
+# Original sprite folders kept outside the Unity project assets
+/0_1 powerups/
+/Caballo_Animaciones/
+/Edificios_Unity/
+/enemigos/
+/fondos/
+/varios/
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/

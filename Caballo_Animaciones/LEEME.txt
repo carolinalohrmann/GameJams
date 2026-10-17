@@ -1,0 +1,16 @@
+CABALLO CON PISTOLA - ANIMACIONES SIMPLES
+
+Diseno: caballo aprobado de pie, mirando a la derecha, con pistola al frente.
+Warrior-V1.3.zip se uso para estudiar las poses; no se incluyen sus sprites en esta entrega.
+
+Idle: respiracion suave, bucle.
+Caminar: pasos alternados en el sitio, bucle. El desplazamiento lo controla tu personaje en Unity.
+Saltar: preparacion, despegue, aire y aterrizaje. La altura real del salto la controla el movimiento del personaje en Unity.
+Muerte: desequilibrio y caida hasta quedar tumbado, sin sangre; reproducir una sola vez.
+
+Cada carpeta contiene cuadros PNG transparentes, hoja de sprites, GIF de vista previa y animacion.json con las duraciones.
+En Unity importa los cuadros como Sprite (2D and UI), usa filtro Point para pixel art y manten el mismo tamano y pivote entre cuadros. Ordena los PNG por su numero.
+Las animaciones son dibujos por cuadros: no incluyen movimiento fisico, colisiones ni logica de salud o disparo.
+El arma esta dibujada junto al caballo en estas versiones. Para intercambiar armas con power-ups, conviene usar un sprite de arma separado.
+
+No se modifico el caballo original aprobado.

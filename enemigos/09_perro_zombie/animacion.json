@@ -1,0 +1,25 @@
+{
+  "nombre": "09_perro_zombie",
+  "origen": "perrozombie.gif",
+  "cuadros": 4,
+  "ancho_cuadro": 229,
+  "alto_cuadro": 151,
+  "columnas": 4,
+  "filas": 1,
+  "orden": "izquierda a derecha, arriba a abajo",
+  "duraciones_ms": [
+    100,
+    100,
+    100,
+    100
+  ],
+  "duracion_total_ms": 400,
+  "bucle": true,
+  "region_origen": null,
+  "recorte_constante": [
+    34,
+    67,
+    263,
+    218
+  ]
+}

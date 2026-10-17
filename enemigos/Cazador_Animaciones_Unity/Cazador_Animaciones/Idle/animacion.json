@@ -1,0 +1,21 @@
+{
+  "nombre": "Idle",
+  "cuadros": 4,
+  "ancho_cuadro": 256,
+  "alto_cuadro": 256,
+  "columnas": 2,
+  "filas": 2,
+  "duraciones_ms": [
+    180,
+    180,
+    180,
+    180
+  ],
+  "bucle": true,
+  "fps_sugeridos": 5.556,
+  "pivote_normalizado": [
+    0.5,
+    0.078125
+  ],
+  "nota": "Mirando a la izquierda. Mantener ultimo cuadro de muerte."
+}

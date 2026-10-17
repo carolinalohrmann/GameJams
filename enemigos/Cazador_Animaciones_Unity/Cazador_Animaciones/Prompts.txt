@@ -1,0 +1,6 @@
+Herramienta: image_gen integrada, referencia cazador.png adjunta por el usuario.
+Comun: conservar soldado cazador pixel art, casco con cruces, mascara de gas, armadura marron/gris, detalles dorados de municion y mochila. Orientar personaje y rifle hacia la IZQUIERDA. Contornos escalonados, colores planos y fondo transparente, sin etiquetas, cuadricula, halos ni sombras. Celdas iguales y cuerpo completo con arma dentro de cada celda.
+Idle: 2x2, cuatro cuadros de respiracion suave con botas apoyadas y rifle apuntado a la izquierda.
+Caminar: 3x2, seis cuadros de marcha en el sitio alternando piernas; rifle apuntado a la izquierda.
+Disparar: 2x2, listo, pequeno fogonazo amarillo/naranja y retroceso, recuperacion, listo de nuevo.
+Muerte: 3x2, desequilibrio, inclinacion hacia atras a la derecha, rodillas vencidas, caida, casi tumbado y tumbado horizontal inmovil. Sin sangre.

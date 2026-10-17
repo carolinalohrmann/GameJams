@@ -1,0 +1,7 @@
+Herramienta visual: image_gen integrada. Referencia principal: caballo_derecha_con_pistola.png.
+Instrucciones comunes: conservar caballo naranja/beis, detalles crema, crin y cola marron grisaceo, ojo negro cuadrado y contorno grueso pixelado. Mirar a la derecha y sostener pistola con ambas manos al frente. Sin ropa, texto, cuadricula, sombras ni brillo exterior. Fondo transparente. Tamano de personaje uniforme y cada pose completa en una celda igual, con margen.
+Idle: cuadricula 2x2, cuatro cuadros de respiracion suave con pies apoyados y pistola apuntando a la derecha.
+Caminar: cuadricula 3x2, seis cuadros de pasos alternados en el sitio, torso erguido, pistola a la derecha y ligera oscilacion de cola.
+Saltar: cuadricula 2x2, cuatro poses: preparacion agachada, despegue, aire con piernas recogidas y aterrizaje. Altura de salto controlada en el juego.
+Muerte: cuadricula 3x2, seis poses: desequilibrio erguido, inclinacion atras, rodillas dobladas, caida, casi en el suelo y cuerpo completamente tumbado. Sin sangre y sin desaparecer.
+Exportacion: hojas divididas en cuadros PNG de 256x256, GIF de vista previa y metadatos de duracion; los originales generados tambien se conservan.

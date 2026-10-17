@@ -1,0 +1,21 @@
+{
+  "nombre": "Saltar",
+  "cuadros": 4,
+  "ancho_cuadro": 256,
+  "alto_cuadro": 256,
+  "columnas": 2,
+  "filas": 2,
+  "duraciones_ms": [
+    140,
+    140,
+    140,
+    650
+  ],
+  "bucle": false,
+  "fps_sugeridos": 7.143,
+  "pivote_normalizado": [
+    0.5,
+    0.078125
+  ],
+  "nota": "Mantener ultimo cuadro de muerte; salto sin desplazamiento fisico."
+}

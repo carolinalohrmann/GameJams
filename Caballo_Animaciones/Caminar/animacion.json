@@ -1,0 +1,23 @@
+{
+  "nombre": "Caminar",
+  "cuadros": 6,
+  "ancho_cuadro": 256,
+  "alto_cuadro": 256,
+  "columnas": 3,
+  "filas": 2,
+  "duraciones_ms": [
+    120,
+    120,
+    120,
+    120,
+    120,
+    120
+  ],
+  "bucle": true,
+  "fps_sugeridos": 8.333,
+  "pivote_normalizado": [
+    0.5,
+    0.078125
+  ],
+  "nota": "Mantener ultimo cuadro de muerte; salto sin desplazamiento fisico."
+}

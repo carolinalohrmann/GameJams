@@ -1,0 +1,38 @@
+{
+  "nombre": "Efecto_016",
+  "cuadros": 20,
+  "ancho_cuadro": 48,
+  "alto_cuadro": 48,
+  "columnas": 5,
+  "filas": 4,
+  "duraciones_ms": [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+  ],
+  "fps": 10,
+  "bucle_vista_previa": true,
+  "fila_origen": 2,
+  "columna_origen": 2,
+  "pivote_normalizado": [
+    0.5,
+    0.5
+  ]
+}

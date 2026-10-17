@@ -1,0 +1,28 @@
+EFECTOS DE DISPARO PARA UNITY
+
+122 efectos separados del GIF original. 20 cuadros por efecto, 10 cuadros por segundo. Fondo morado eliminado; movimiento original conservado. El rayo largo se conserva como un solo efecto.
+
+1. Abre Catalogo_efectos.png y elige un numero.
+2. Importa SOLO los PNG de la carpeta cuadros de ese efecto a Assets en Unity. El GIF es vista previa, no el archivo para Unity.
+3. Selecciona esos PNG: Texture Type = Sprite (2D and UI), Sprite Mode = Single, Filter Mode = Point, Compression = None. Usa los mismos Pixels Per Unit en todos los cuadros. Aplica los cambios.
+4. Puedes crear una animacion con los cuadros ordenados 000 a 019 a 10 FPS. Alternativamente usa DisparoAnimado.cs incluido.
+
+SCRIPT OPCIONAL:
+- Copia DisparoAnimado.cs a Assets.
+- Crea un objeto EfectoDisparo con SpriteRenderer como hijo de la boca del arma.
+- Anade DisparoAnimado y arrastra a Cuadros los 20 sprites de UN efecto en orden.
+- FPS = 10. Deja Repetir desmarcado para fogonazos de un disparo. Llama a Reproducir() desde el codigo que dispara el arma.
+- Para balas persistentes, coloca el componente en el objeto bala, activa Reproducir Al Activar y Repetir.
+- Usa una instancia o prefab por arma y asignale los cuadros de otro Efecto_XXX para cambiar su aspecto.
+- Ajusta posicion, escala y rotacion para colocar el efecto en el canon. El pivote de los cuadros esta en el centro.
+- Si el arma apunta a la izquierda, gira el objeto del efecto 180 grados o ajusta Flip X en SpriteRenderer segun su direccion original.
+- Ajusta Sorting Layer y Order in Layer para que se vea delante del arma.
+
+Cada efecto incluye hoja de sprites (5 columnas x 4 filas), cuadros individuales, tiempos JSON y GIF. Cuadros de 48x48; el rayo largo usa 144x48. No recortes cada cuadro por separado: el lienzo fijo evita saltos.
+Los GIF de vista previa se repiten. Puedes acelerar un fogonazo subiendo FPS, por ejemplo 30 o 40; las 20 imagenes originales se conservan.
+El script solo reproduce imagenes: no genera balas, colisiones, movimiento ni dano. No se ha ejecutado dentro de tu proyecto Unity.
+
+Documentacion oficial sobre importacion:
+https://docs.unity.com/en-us/engine/6000.7/manual/unity2d/sprite/import-images-sprites
+SpriteRenderer:
+https://docs.unity.com/en-us/engine/6000.6/script-reference/unityengine/spriterenderer

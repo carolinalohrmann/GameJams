@@ -1,0 +1,13 @@
+VERSION ANTERIOR A LOS NIVELES FINALES
+
+Unity 6000.5.5f1. Abrir esta carpeta desde Unity Hub.
+Abrir Assets/0_0Scenes/Tutorial.unity y pulsar Play.
+Incluye Tutorial y niveles 2, 3, 4 y 5. Level5 vuelve al Tutorial.
+Conserva corazones, poderes, disparos 007/008 y las correcciones de enemigos y plataformas.
+No incluye niveles 6/7/8, jefes, meteoritos ni ruta secreta.
+A/D o flechas: mover. Espacio/W/arriba: saltar. Clic izquierdo: disparar. H: guia. R: inicio.
+
+Solo contiene Assets, Packages y ProjectSettings necesarios.
+Los sprites importados dentro de Assets son necesarios para jugar.
+No incluye Library, archivos de Git ni carpetas originales de sprites.
+Unity creara Library automaticamente al abrir el proyecto.

@@ -4,26 +4,32 @@ using UnityEngine.UI;
 
 public class FinalCampaignStage : MonoBehaviour
 {
+    public const string NormalEndingMessage = "Tener miedo a lo desconocido es normal. Disfruta tu mediocridad.";
     public BossController bossPrefab;
     public Sprite towerSprite, portalSprite, meteorSprite;
     public Sprite[] powerUpIcons;
-    public PowerUp.Kind[] fixedPowerUps = { PowerUp.Kind.Medkit, PowerUp.Kind.Shirt, PowerUp.Kind.Chicken, PowerUp.Kind.Apple };
+    public PowerUp.Kind[] fixedPowerUps = { PowerUp.Kind.Medkit, PowerUp.Kind.Shirt, PowerUp.Kind.Chicken, PowerUp.Kind.Apple, PowerUp.Kind.Citrus, PowerUp.Kind.Feather };
     public float arenaLeft, arenaRight, floorY = -4;
+    public float towerFootOffset;
     public BossController Boss { get; private set; }
     public bool ExitsUnlocked { get; private set; }
     public LevelOne Level { get; private set; }
-    public string Objective => ExitsUnlocked ? (Level.stageNumber == 6 ? "E: entra en la Torre o elige el portal disponible." : "Acércate a la Torre para continuar.")
+    public string Objective => ExitsUnlocked ? (Level.stageNumber == 6 ? "Acércate a una de las dos puertas y pulsa E para elegir y entrar." : "Acércate a la Torre para continuar.")
         : Level.stageNumber == 6 ? "Llega al Necromancer y derrótalo para abrir las dos puertas."
         : Level.stageNumber == 7 ? "Esquiva los meteoritos y derrota al segundo Necromancer."
         : "Esquiva las ráfagas y derrota al Cazador.";
     public readonly List<CampaignPortal> Portals = new List<CampaignPortal>();
     float nextMeteor;
     bool cleanedDeath;
-    void Awake() { Level = GetComponent<LevelOne>(); Level.manualCompletion = true; }
+    void Awake()
+    {
+        Level = GetComponent<LevelOne>(); Level.manualCompletion = true;
+        fixedPowerUps = System.Array.FindAll(fixedPowerUps, kind => PowerUp.IsAvailableInStage(kind, Level.stageNumber));
+    }
     void Start()
     {
         Boss = Instantiate(bossPrefab, new Vector3(arenaRight - 5, floorY + bossPrefab.GetComponent<BoxCollider2D>().size.y / 2 + 0.03f, 0), Quaternion.identity);
-        Boss.stage = this; Boss.arenaLeft = arenaLeft; Boss.arenaRight = arenaRight - 2;
+        Boss.ConfigureStage(this); Boss.arenaLeft = arenaLeft; Boss.arenaRight = arenaRight - 2;
         Level.player.Respawned += ResetEncounter;
         nextMeteor = Time.time + 4;
     }
@@ -57,12 +63,14 @@ public class FinalCampaignStage : MonoBehaviour
             var ui = TutorialCanvasUI.Instance;
             ui.completionTitleText.text = "Felicidades, eres housestatico";
             ui.completionDescriptionText.text = "Derrotaste al Cazador y completaste la ruta secreta.";
+            ui.MostrarCreditosFinales();
             Level.nextSceneName = "Tutorial";
             ui.restartButton.GetComponentInChildren<Text>().text = "Volver al tutorial";
             Level.Complete(); return;
         }
         if (Level.stageNumber == 6)
         {
+            SpawnNecromancerApple();
             AddPortal(arenaRight - 10, towerSprite, "Torre · final normal", "");
             AddPortal(arenaRight - 3.5f, portalSprite, "Ruta secreta", "Level7");
             Level.Notify("Necromancer derrotado. Elige una puerta y pulsa E.");
@@ -73,26 +81,45 @@ public class FinalCampaignStage : MonoBehaviour
             Level.Notify("La torre se ha abierto. Acércate para entrar.");
         }
     }
+    void SpawnNecromancerApple()
+    {
+        var root = Instantiate(Level.layout.pickupPrefab, new Vector3(arenaRight - 13, floorY + 0.7f, 0), Quaternion.identity, transform);
+        root.name = "Apple - recompensa del Necromancer";
+        var pickup = root.GetComponent<PowerUp>();
+        pickup.kind = PowerUp.Kind.Apple;
+        pickup.pickupId = "Level6.NecromancerReward";
+        pickup.durationSeconds = PowerUp.DefaultDuration(PowerUp.Kind.Apple);
+        pickup.icon.sprite = powerUpIcons[(int)PowerUp.Kind.Apple];
+    }
     void AddPortal(float x, Sprite sprite, string title, string destination)
     {
         var portal = new GameObject(title).AddComponent<CampaignPortal>();
         portal.transform.position = new Vector3(x, floorY, 0);
         portal.stage = this; portal.destination = destination; portal.title = title;
-        var visual = portal.gameObject.AddComponent<SpriteRenderer>(); visual.sprite = sprite; visual.sortingOrder = 4;
+        var visual = portal.gameObject.AddComponent<SpriteRenderer>(); visual.sprite = sprite; visual.sortingOrder = sprite == towerSprite ? 1 : 4;
         // Sprites are imported with their pivot at the visible base.
         float width = destination == "Level7" ? 1.5f : 3;
         visual.transform.localScale = Vector3.one * Mathf.Min(width / sprite.bounds.size.x, 2.5f / sprite.bounds.size.y);
+        if (sprite == towerSprite) portal.transform.position += Vector3.down * (towerFootOffset * portal.transform.localScale.y + 0.06f);
+        if (sprite == towerSprite)
+            foreach (var hit in Physics2D.RaycastAll(new Vector2(x, floorY + 0.5f), Vector2.down, 2))
+                if (!hit.collider.isTrigger && hit.collider.attachedRigidbody == null)
+                {
+                    foreach (var soil in hit.collider.GetComponentsInChildren<SpriteRenderer>()) soil.sortingOrder = Mathf.Max(2, soil.sortingOrder);
+                    break;
+                }
         var trigger = new GameObject("Entrada").AddComponent<BoxCollider2D>();
         trigger.transform.SetParent(portal.transform, false);
         trigger.size = new Vector2(1 / portal.transform.localScale.x, 1.8f / portal.transform.localScale.y);
-        trigger.offset = new Vector2(0, 0.9f / portal.transform.localScale.y); trigger.isTrigger = true;
+        trigger.offset = new Vector2(0, (floorY + 0.9f - portal.transform.position.y) / portal.transform.localScale.y); trigger.isTrigger = true;
         Portals.Add(portal);
     }
     public void NormalEnding()
     {
         var ui = TutorialCanvasUI.Instance;
         ui.completionTitleText.text = "Final normal";
-        ui.completionDescriptionText.text = "Derrotaste al Necromancer y escapaste por la torre.";
+        ui.completionDescriptionText.text = NormalEndingMessage;
+        ui.MostrarCreditosFinales();
         Level.nextSceneName = "Tutorial";
         ui.restartButton.GetComponentInChildren<Text>().text = "Volver al tutorial";
         Level.Complete();
@@ -114,7 +141,7 @@ public class FinalCampaignStage : MonoBehaviour
         if (Level == null) Level = GetComponent<LevelOne>();
         int number = Level.stageNumber;
         ui.stageTitleText.text = number == 6 ? "NIVEL 6 · El Necromancer" : number == 7 ? "RUTA SECRETA · Mundo roto" : "EL CAZADOR";
-        ui.stageObjectiveText.text = number == 6 ? "Derrota al Necromancer. Después elige tu final con E."
+        ui.stageObjectiveText.text = number == 6 ? "Derrota al Necromancer. Acércate a una de las dos puertas y pulsa E para elegir."
             : number == 7 ? "Enemigos reforzados y meteoritos letales. Derrota al segundo Necromancer."
             : "Esquiva ráfagas y meteoritos. Derrota al Cazador.";
         ui.completionTitleText.text = number == 8 ? "Felicidades, eres housestatico" : "Final normal";

@@ -42,7 +42,7 @@ public static class ValidateRequestedRefinements
             Require(EditorApplication.timeSinceStartup < deadline, "Refinement validation timeout");
             if (Time.unscaledTime < next) return;
             if (checks.MoveNext()) next = Time.unscaledTime + checks.Current;
-            else { Debug.Log("REQUESTED_REFINEMENTS_PLAYMODE_OK: illustrated guide, repeat-visit apples with saved health and no respawn farming, moving/casting Necromancer, player-only one-second projectile lifetime, persistent five-heart penalties for manual/fall/death restarts with minimum one, E only for two-door choice, automatic single-door entry and Hunter meteors"); Finish(0); }
+            else { Debug.Log("REQUESTED_REFINEMENTS_PLAYMODE_OK: illustrated guide, repeat-visit apples, moving/casting Necromancer, one-second player shots, five-heart manual/fall/death penalties with minimum one, tutorial confirmation/cancel/pause, E only for two doors, automatic single-door entry, Hunter meteors and six-damage bullets"); Finish(0); }
         }
         catch (Exception e) { Debug.LogException(e); Finish(1); }
     }
@@ -68,6 +68,20 @@ public static class ValidateRequestedRefinements
     {
         yield return 0.5f;
         Require(UI.simpleGuideText == null && UI.guideContent.GetComponentsInChildren<Image>().Count(i => i.name == "Icono") == 3, "Restore the guide with power icons and descriptions");
+        var originalScene = SceneManager.GetActiveScene().handle;
+        int originalMaximum = UI.player.maxHealth;
+        UI.SetGuide(false);
+        UI.tutorialButton.onClick.Invoke();
+        Require(UI.ReturnConfirmationOpen && Time.timeScale == 0 && TutorialCanvasUI.BlocksGameplay, "Return button must pause and request confirmation");
+        Require(SceneManager.GetActiveScene().handle == originalScene, "Opening confirmation must not reload or change the scene");
+        var cancel = UI.GetComponentsInChildren<Button>().Single(b => b.name == "Cancelar");
+        Require(UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject == cancel.gameObject, "Cancel should receive initial keyboard focus");
+        cancel.onClick.Invoke();
+        Require(!UI.ReturnConfirmationOpen && !UI.GuideOpen && Time.timeScale == 1 && !TutorialCanvasUI.BlocksGameplay, "Cancel must resume gameplay");
+        UI.SetGuide(true); UI.guideTutorialButton.onClick.Invoke();
+        cancel.onClick.Invoke();
+        Require(UI.GuideOpen && !UI.ReturnConfirmationOpen && Time.timeScale == 0, "Cancelling from the guide must keep the guide paused");
+        Require(UI.player.maxHealth == originalMaximum && SceneManager.GetActiveScene().handle == originalScene, "Cancel must preserve health and the current scene");
         var p = Prepare(); var boss = Stage.Boss;
         Warp(new Vector2(boss.transform.position.x - 7, -3.4f));
         p.ApplyPowerUp(PowerUp.Kind.Resistance, "motiontest", 100);
@@ -129,5 +143,24 @@ public static class ValidateRequestedRefinements
         typeof(FinalCampaignStage).GetField("nextMeteor", Private).SetValue(Stage, Time.time - 1);
         yield return 0.08f;
         Require(UnityEngine.Object.FindObjectsByType<CampaignHazard>().Any(h => h.meteor && h.lethal && !h.Armed), "Hunter arena must spawn warned lethal meteorites");
+        Stage.enabled = false; Stage.ClearAttacks();
+        p.ApplyPowerUp(PowerUp.Kind.Apple, "hunter.damage.test");
+        typeof(player).GetField("invincibleUntil", Private).SetValue(p, 0f);
+        var burst = (System.Collections.IEnumerator)typeof(BossController).GetMethod("HunterBurst", Private).Invoke(Stage.Boss, new object[] { 0 });
+        Require(burst.MoveNext() && burst.MoveNext() && burst.MoveNext(), "Hunter burst must produce its first bullet");
+        var hunterShot = UnityEngine.Object.FindObjectsByType<CampaignAttack>().Single().GetComponent<bullet>();
+        int beforeHit = p.Health;
+        typeof(bullet).GetMethod("OnTriggerEnter2D", Private).Invoke(hunterShot, new object[] { p.GetComponent<Collider2D>() });
+        Require(p.Health == beforeHit - 6, "A real Hunter burst bullet must cause exactly six damage");
+        Defeat(); yield return 0.1f;
+        UI.restartButton.onClick.Invoke();
+        Require(UI.ReturnConfirmationOpen && SceneManager.GetActiveScene().name == "Level8", "Final return button must also request confirmation");
+        UI.CancelReturnToTutorial();
+        UI.tutorialButton.onClick.Invoke();
+        UI.GetComponentsInChildren<Button>().Single(b => b.name == "Volver al tutorial" && b.transform.parent.name == "Dialogo").onClick.Invoke();
+        yield return 0.5f;
+        Require(SceneManager.GetActiveScene().name == "Tutorial" && UI.GuideOpen && !UI.ReturnConfirmationOpen, "Confirm must load the tutorial with its guide");
+        UI.SetGuide(false);
+        Require(Time.timeScale == 1 && !TutorialCanvasUI.BlocksGameplay, "Leaving confirmation must not leave the new scene paused");
     }
 }

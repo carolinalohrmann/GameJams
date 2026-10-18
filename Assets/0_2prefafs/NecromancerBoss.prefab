@@ -125,7 +125,7 @@ MonoBehaviour:
   projectile: {fileID: 4487940784570851719, guid: 9a5e34f621563d24e990bd24cdc024c8, type: 3}
   patrolDistance: 2
   moveSpeed: 1.2
-  health: 180
+  health: 301
   contactDamage: 1
   projectileDamage: 1
   animator: {fileID: 8926086300617024365}
@@ -145,7 +145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossController
   hunter: 0
-  maximumHealth: 180
+  maximumHealth: 301
   projectileSprite: {fileID: 1274804211, guid: 09658fcd5878cfd4581bad41a07c9c8a, type: 3}
   ritualSprite: {fileID: 1274804211, guid: 09658fcd5878cfd4581bad41a07c9c8a, type: 3}
   summonPrefab: {fileID: 4214307798934419435, guid: de6f3f663db5c75408bac6ad75a04c15, type: 3}

@@ -68,7 +68,7 @@ public class CampaignHazard : MonoBehaviour
             {
                 var p = hit.collider.GetComponent<player>();
                 if (p != null) { Hit(p); return; }
-                if (!hit.collider.isTrigger && hit.collider.attachedRigidbody == null) { Destroy(gameObject); return; }
+                if (!hit.collider.isTrigger && hit.collider.attachedRigidbody == null) { GameAudio.Instance?.Cue(GameAudio.Sound.MeteorImpact); Destroy(gameObject); return; }
             }
             transform.position += Vector3.down * travel;
             if (transform.position.y < ground - 2) Destroy(gameObject);
@@ -84,7 +84,7 @@ public class CampaignHazard : MonoBehaviour
     public void Hit(player p)
     {
         if (!Armed) return;
-        if (lethal) p.KillInstantly(); else p.Damage(3);
-        if (meteor) Destroy(gameObject);
+        if (lethal) p.KillInstantly(); else p.Damage(stage.Level.stageNumber == 7 ? 9 : 4);
+        if (meteor) { GameAudio.Instance?.Cue(GameAudio.Sound.MeteorImpact); Destroy(gameObject); }
     }
 }

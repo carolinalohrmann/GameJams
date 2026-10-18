@@ -47,21 +47,7 @@ public static class ApplyRequestedRefinements
             if (stage == 8)
             {
                 ArrangeArena(GameObject.Find("Hunter fixed arena").transform);
-                campaign.fixedPowerUps = new[] { PowerUp.Kind.Medkit, PowerUp.Kind.Shirt, PowerUp.Kind.Chicken, PowerUp.Kind.Apple };
-                if (!UnityEngine.Object.FindObjectsByType<PowerUp>().Any(p => p.kind == PowerUp.Kind.Apple))
-                {
-                    var source = UnityEngine.Object.FindAnyObjectByType<PowerUp>();
-                    var apple = UnityEngine.Object.Instantiate(source, source.transform.parent);
-                    apple.name = "PowerUp Apple"; apple.kind = PowerUp.Kind.Apple; apple.pickupId = "Level8.Apple";
-                    apple.durationSeconds = PowerUp.DefaultDuration(apple.kind);
-                    apple.icon.sprite = campaign.powerUpIcons[(int)apple.kind];
-                }
-                foreach (var pickup in UnityEngine.Object.FindObjectsByType<PowerUp>())
-                {
-                    float x = pickup.kind == PowerUp.Kind.Medkit ? -8.8f : pickup.kind == PowerUp.Kind.Shirt ? 5 : pickup.kind == PowerUp.Kind.Apple ? -6.5f : -5;
-                    pickup.transform.position = new Vector3(x, -3, 0);
-                    PrefabUtility.RecordPrefabInstancePropertyModifications(pickup.transform);
-                }
+                BuildFinalCampaign.RefreshHunterPickups(campaign);
             }
             EditorSceneManager.MarkSceneDirty(scene); EditorSceneManager.SaveScene(scene);
         }
@@ -78,7 +64,7 @@ public static class ApplyRequestedRefinements
         ui.stageObjectiveText = Label(panel, "Objetivo", 20, 55, 600, 50, 17);
         ui.simpleGuideText = Label(panel, "Instrucciones", 20, 115, 600, 365, 16);
         var hint = Label(panel, "Doble salto", 20, 480, 600, 48, 15);
-        hint.text = "Morir, caer o pulsar R resta 5 de vida máxima. Mínimo: 1.";
+        hint.text = "Morir, caer o pulsar R resta 2 de vida máxima. Mínimo: 1.";
         var buttonRect = Rect(panel, "Continuar", 210, 545, 220, 36);
         var image = buttonRect.gameObject.AddComponent<Image>(); image.color = new Color(0.75f, 0.75f, 0.75f);
         ui.continueButton = buttonRect.gameObject.AddComponent<Button>(); ui.continueButton.targetGraphic = image;

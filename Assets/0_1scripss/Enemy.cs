@@ -10,6 +10,7 @@ public class Enemy : MonoBehaviour
     BossController boss;
     public Animator animator;
     public SpriteRenderer visual;
+    public AudioClip attackSound, deathSound;
     public bool flying;
     public bool spriteFacesLeft;
     Rigidbody2D body;
@@ -18,6 +19,7 @@ public class Enemy : MonoBehaviour
     float home, homeY, nextAttack, attackUntil, hitUntil;
     int direction = -1;
     bool dead;
+    bool healthAdjusted;
     string state;
     readonly RaycastHit2D[] obstacles = new RaycastHit2D[16];
     float nextMeleeAttack;
@@ -33,6 +35,12 @@ public class Enemy : MonoBehaviour
     }
     void Start()
     {
+        var level = LevelOne.Instance;
+        if (!healthAdjusted && boss == null && GetComponent<BossSummon>() == null && level != null)
+        {
+            health = level.stageNumber >= 7 ? 10 : 6;
+            healthAdjusted = true;
+        }
         home = transform.position.x;
         homeY = transform.position.y;
         target = FindAnyObjectByType<player>();
@@ -79,6 +87,7 @@ public class Enemy : MonoBehaviour
         if (Time.time >= nextMeleeAttack)
         {
             target.Damage(contactDamage);
+            GameAudio.Instance?.EnemyAttack(this);
             attackUntil = Time.time + attackDuration;
             nextMeleeAttack = attackUntil + 0.25f;
             state = null;
@@ -119,6 +128,7 @@ public class Enemy : MonoBehaviour
             {
                 Vector2 aim = ((Vector2)targetHitbox.bounds.center - body.position).normalized;
                 Instantiate(projectile, body.position + aim * 0.72f, Quaternion.identity).Launch(aim, hitbox, true, 4, projectileDamage);
+                GameAudio.Instance?.EnemyAttack(this);
                 nextAttack = Time.time + 2.2f;
                 attackUntil = Time.time + 0.6f;
             }
@@ -146,6 +156,7 @@ public class Enemy : MonoBehaviour
         if (health <= 0)
         {
             dead = true;
+            GameAudio.Instance?.EnemyDeath(this);
             hitbox.enabled = false;
             body.linearVelocity = Vector2.zero;
             Animate("Death");

@@ -105,6 +105,8 @@ public static class ValidateCombatPolish
             if (weapon == 1) p.ApplyPowerUp(PowerUp.Kind.Chicken, "test.ak");
             if (weapon == 2) p.ApplyPowerUp(PowerUp.Kind.Shirt, "test.minigun");
             if (weapon == 3) p.ApplyPowerUp(PowerUp.Kind.Rock, "test.rock");
+            if (weapon == 1) Require(p.AKRemaining > 14.9f && p.AKRemaining <= 15 && Mathf.Abs(p.FireDelay - 0.13f) < 0.0001f, "AK must last 15 seconds and fire every 0.13 seconds");
+            if (weapon == 2) Require(p.MinigunRemaining > 9.9f && p.MinigunRemaining <= 10, "Camisa must last 10 seconds");
             var existing = UnityEngine.Object.FindObjectsByType<bullet>();
             typeof(player).GetField("nextShot", Private).SetValue(p, 0f);
             Require(p.TryShoot(), "Weapon did not fire");

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class BossController : MonoBehaviour
 {
     public bool hunter;
-    public int maximumHealth = 180;
+    public int maximumHealth = 301;
     public Sprite projectileSprite, ritualSprite;
     public GameObject summonPrefab;
     public FinalCampaignStage stage;
@@ -27,16 +27,25 @@ public class BossController : MonoBehaviour
     Text healthLabel;
     readonly RaycastHit2D[] hits = new RaycastHit2D[16];
     public bool Enraged => Health <= maximumHealth / 2;
+    int AttackBonus => !hunter && stage != null && stage.Level.stageNumber == 7 ? 5 : 0;
+    public void ConfigureStage(FinalCampaignStage owner)
+    {
+        stage = owner;
+        if (!hunter && stage.Level.stageNumber == 7) maximumHealth = 400;
+        enemy.health = maximumHealth;
+    }
     void Awake()
     {
         enemy = GetComponent<Enemy>(); body = GetComponent<Rigidbody2D>(); hitbox = GetComponent<BoxCollider2D>();
         enemy.health = maximumHealth; home = transform.position;
+        if (!hunter && enemy.animator != null) enemy.animator.speed = 1.25f;
     }
     void Start() { CreateHUD(); }
     public void Activate()
     {
         if (Active || Defeated) return;
         Active = true;
+        GameAudio.Instance?.BossBreathing(hunter);
         stage.Level.Notify(hunter ? "El Cazador prepara su ráfaga." : "El Necromancer despierta. Cuidado con el ritual letal.");
         attacks = StartCoroutine(AttackLoop());
     }
@@ -90,6 +99,7 @@ public class BossController : MonoBehaviour
         enemy.health = Mathf.Max(0, enemy.health - Mathf.Min(amount, 20));
         if (enemy.health > 0) return;
         Defeated = true; Active = false; movement = 0;
+        GameAudio.Instance?.StopBoss();
         if (attacks != null) StopCoroutine(attacks);
         hitbox.enabled = false; body.linearVelocity = Vector2.zero;
         Play("Death"); stage.ClearAttacks();
@@ -104,18 +114,21 @@ public class BossController : MonoBehaviour
     public void Contact(player p)
     {
         if (Defeated || Time.time < nextContact) return;
-        p.Damage(hunter ? 2 : 3); nextContact = Time.time + 0.8f;
+        if (hunter) p.KillInstantly();
+        else p.Damage(4 + AttackBonus);
+        nextContact = Time.time + (hunter ? 0.8f : 0.65f);
     }
     public void ResetEncounter()
     {
         if (Defeated) return;
+        GameAudio.Instance?.StopBoss();
         StopAllCoroutines(); attacks = null; Active = false; movement = 0; performingAttack = false; turnUntil = 0; enemy.health = maximumHealth;
         body.position = home; body.linearVelocity = Vector2.zero; Play("Idle");
         foreach (var summon in FindObjectsByType<BossSummon>()) Destroy(summon.gameObject);
     }
     IEnumerator AttackLoop()
     {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(hunter ? 1 : 0.75f);
         int cycle = 0;
         while (!Defeated)
         {
@@ -132,33 +145,36 @@ public class BossController : MonoBehaviour
                 }
             }
             performingAttack = false; movement = 0; Play("Idle");
-            yield return new WaitForSeconds(Enraged ? 0.5f : 0.9f);
+            yield return new WaitForSeconds(hunter ? (Enraged ? 0.5f : 0.9f) : (Enraged ? 0.35f : 0.65f));
         }
     }
     IEnumerator FanVolley()
     {
+        GameAudio.Instance?.Magic();
         Play("Attack");
-        yield return new WaitForSeconds(0.6f);
+        yield return new WaitForSeconds(0.45f);
         int count = Enraged ? 7 : 5;
         for (int wave = 0; wave < 2; wave++)
         {
             var aim = ((Vector2)stage.Level.player.transform.position - body.position).normalized;
-            for (int i = 0; i < count; i++) Shoot(Quaternion.Euler(0, 0, (i - (count - 1) / 2f) * 11) * aim, 5.2f, 2);
-            yield return new WaitForSeconds(0.45f);
+            for (int i = 0; i < count; i++) Shoot(Quaternion.Euler(0, 0, (i - (count - 1) / 2f) * 11) * aim, 6.5f, 3);
+            yield return new WaitForSeconds(0.3375f);
         }
     }
     IEnumerator Ritual(bool lethal)
     {
+        GameAudio.Instance?.Magic();
         Play(lethal ? "Ultimate" : "Cast");
         float x = Mathf.Clamp(stage.Level.player.transform.position.x, arenaLeft + 1.5f, arenaRight - 1.5f);
         stage.Level.Notify(lethal ? "RITUAL LETAL: ¡sal de la marca!" : "El suelo arde: aléjate de las marcas.");
-        if (lethal) CampaignHazard.CreateRitual(stage, ritualSprite, x, 1.6f, true);
-        else for (int i = -1; i <= 1; i++) CampaignHazard.CreateRitual(stage, ritualSprite, Mathf.Clamp(x + i * 2.6f, arenaLeft + 1, arenaRight - 1), 1.1f, false);
-        yield return new WaitForSeconds(lethal ? 2.25f : 1.9f);
+        if (lethal) CampaignHazard.CreateRitual(stage, ritualSprite, x, 1.2f, true);
+        else for (int i = -1; i <= 1; i++) CampaignHazard.CreateRitual(stage, ritualSprite, Mathf.Clamp(x + i * 2.6f, arenaLeft + 1, arenaRight - 1), 0.85f, false);
+        yield return new WaitForSeconds(lethal ? 1.9f : 1.55f);
     }
     IEnumerator Summon()
     {
-        Play("Cast"); yield return new WaitForSeconds(0.7f);
+        GameAudio.Instance?.Magic();
+        Play("Cast"); yield return new WaitForSeconds(0.5f);
         int existing = FindObjectsByType<BossSummon>().Length;
         int remaining = Mathf.Min(2, 3 - existing);
         if (summonPrefab != null && remaining > 0)
@@ -176,12 +192,12 @@ public class BossController : MonoBehaviour
                 int count = Physics2D.OverlapBox(point + offset, size + new Vector2(1.6f, 0), 0, filter, overlaps);
                 if (count > 0) continue;
                 var root = Instantiate(summonPrefab, point, Quaternion.identity);
-                var summoned = root.GetComponent<Enemy>(); summoned.health = 3; summoned.contactDamage = 2;
+                var summoned = root.GetComponent<Enemy>(); summoned.health = 10; summoned.contactDamage = 3 + AttackBonus;
                 summoned.patrolDistance = 0.75f; root.AddComponent<BossSummon>();
                 Physics2D.SyncTransforms(); remaining--;
             }
         }
-        yield return new WaitForSeconds(0.7f);
+        yield return new WaitForSeconds(0.5f);
     }
     IEnumerator HunterBurst(int cycle)
     {
@@ -196,15 +212,16 @@ public class BossController : MonoBehaviour
         for (int i = 0; i < rounds; i++)
         {
             if (i % 4 == 0) aim = ((Vector2)stage.Level.player.transform.position - body.position).normalized;
-            Shoot(aim, 10, 1);
+            Shoot(aim, 10, 6);
             if (i % 4 == 0) Play("Attack");
             yield return new WaitForSeconds(0.065f);
         }
     }
     void Shoot(Vector2 aim, float speed, int damage)
     {
+        if (hunter) GameAudio.Instance?.HunterShot();
         var shot = Instantiate(enemy.projectile, (Vector2)transform.position + aim * 1.05f, Quaternion.identity);
-        shot.Launch(aim, hitbox, true, speed, damage);
+        shot.Launch(aim, hitbox, true, speed, damage + AttackBonus);
         shot.gameObject.AddComponent<CampaignAttack>();
         if (hunter) shot.UsePlayerEffect(true);
         else
@@ -234,5 +251,5 @@ public class BossController : MonoBehaviour
         healthFill.rectTransform.anchoredPosition = new Vector2(-200, -14); healthFill.raycastTarget = false;
     }
     void OnDestroy() { if (hud != null) Destroy(hud.gameObject); }
-    void OnDisable() { if (hud != null) hud.gameObject.SetActive(false); }
+    void OnDisable() { GameAudio.Instance?.StopBoss(); if (hud != null) hud.gameObject.SetActive(false); }
 }

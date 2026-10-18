@@ -14,6 +14,40 @@ public static class BuildFinalCampaign
     static Sprite top, fill, tower, meteor, orb;
     static Sprite[] sky;
     static BossController necromancer, hunter;
+    public static void RefreshHunterPickups(FinalCampaignStage stage)
+    {
+        stage.fixedPowerUps = new[] { PowerUp.Kind.Medkit, PowerUp.Kind.Shirt, PowerUp.Kind.Chicken, PowerUp.Kind.Apple, PowerUp.Kind.Citrus, PowerUp.Kind.Feather };
+        float[] spots = { -8.8f, 5, -5, -6.5f, -7.6f, -2.5f };
+        var template = UnityEngine.Object.FindAnyObjectByType<PowerUp>();
+        for (int i = 0; i < stage.fixedPowerUps.Length; i++)
+        {
+            var kind = stage.fixedPowerUps[i];
+            var pickup = UnityEngine.Object.FindObjectsByType<PowerUp>().FirstOrDefault(p => p.kind == kind);
+            if (pickup == null) pickup = UnityEngine.Object.Instantiate(template, template.transform.parent);
+            pickup.name = "PowerUp " + kind; pickup.kind = kind; pickup.pickupId = "Level8." + kind;
+            pickup.durationSeconds = PowerUp.DefaultDuration(kind); pickup.icon.sprite = stage.powerUpIcons[(int)kind];
+            pickup.transform.position = new Vector3(spots[i], kind == PowerUp.Kind.Feather ? -1.7f : -3, 0);
+            foreach (var changed in new UnityEngine.Object[] { pickup, pickup.icon, pickup.transform }) PrefabUtility.RecordPrefabInstancePropertyModifications(changed);
+        }
+    }
+    public static void ApplyBalanceAndPreview()
+    {
+        foreach (string name in new[] { "NecromancerBoss", "HunterBoss" })
+        {
+            string path = Prefabs + name + ".prefab";
+            var root = PrefabUtility.LoadPrefabContents(path);
+            int health = name == "HunterBoss" ? 666 : 301;
+            root.GetComponent<BossController>().maximumHealth = health;
+            root.GetComponent<Enemy>().health = health;
+            PrefabUtility.SaveAsPrefabAsset(root, path); PrefabUtility.UnloadPrefabContents(root);
+        }
+        var scene = EditorSceneManager.OpenScene(Scenes + "Level8.unity");
+        RefreshHunterPickups(UnityEngine.Object.FindAnyObjectByType<FinalCampaignStage>());
+        EditorSceneManager.MarkSceneDirty(scene); EditorSceneManager.SaveScene(scene);
+        BuildTutorialCanvas.ApplyAll(); AssetDatabase.SaveAssets();
+        Debug.Log("COMBAT_BALANCE_BUILD_OK");
+        PreviewTutorialCanvas.Render();
+    }
     [MenuItem("GameJams/Crear niveles finales 6, 7 y 8")]
     public static void Build()
     {
@@ -123,7 +157,7 @@ public static class BuildFinalCampaign
         var animator = visual.gameObject.AddComponent<Animator>(); animator.runtimeAnimatorController = controller; animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
         var enemy = root.AddComponent<Enemy>(); enemy.visual = visual; enemy.animator = animator;
         enemy.projectile = AssetDatabase.LoadAssetAtPath<GameObject>(Prefabs + "bullets.prefab").GetComponent<bullet>();
-        enemy.health = isHunter ? 320 : 180; enemy.ranged = true; enemy.spriteFacesLeft = true;
+        enemy.health = isHunter ? 666 : 301; enemy.ranged = true; enemy.spriteFacesLeft = true;
         var boss = root.AddComponent<BossController>(); boss.hunter = isHunter; boss.maximumHealth = enemy.health;
         boss.projectileSprite = isHunter ? enemy.projectile.rapidFrames[0] : orb; boss.ritualSprite = orb;
         boss.summonPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(Prefabs + "EnemyFantasySkeleton.prefab");
@@ -143,6 +177,8 @@ public static class BuildFinalCampaign
         var stage = level.gameObject.AddComponent<FinalCampaignStage>(); stage.arenaLeft = level.rightEdge - (number == 8 ? 22 : 18);
         stage.arenaRight = level.rightEdge - 1; stage.bossPrefab = number == 8 ? hunter : necromancer;
         stage.towerSprite = tower; stage.meteorSprite = meteor; stage.portalSprite = layout.goalSprite; stage.powerUpIcons = layout.powerUpIcons;
+        stage.towerFootOffset = AdjustPresentation.VisibleBottom(tower);
+        stage.fixedPowerUps = Array.FindAll(stage.fixedPowerUps, kind => PowerUp.IsAvailableInStage(kind, number));
         if (number == 8) BuildFixedArena(level, layout, stage);
         else
         {
@@ -193,11 +229,14 @@ public static class BuildFinalCampaign
             bg.sprite = sky[0]; bg.sortingOrder = -30; bg.transform.position = new Vector3(-10 + i * 22, -6, 0);
             bg.transform.localScale = Vector3.one * (16 / bg.sprite.bounds.size.y);
         }
-        float[] spots = { -8.8f, 5, -5, -6.5f };
+        float[] spots = { -8.8f, 5, -5, -6.5f, -7.6f, -2.5f };
         for (int i = 0; i < stage.fixedPowerUps.Length; i++)
         {
             var root = (GameObject)PrefabUtility.InstantiatePrefab(pickupPrefab, world);
-            root.transform.position = new Vector3(spots[i], -3, 0);
+            var kind = stage.fixedPowerUps[i];
+            float x = kind == PowerUp.Kind.Medkit ? -8.8f : kind == PowerUp.Kind.Apple ? -6.5f
+                : kind == PowerUp.Kind.Citrus ? -7.6f : kind == PowerUp.Kind.Feather ? -2.5f : spots[i];
+            root.transform.position = new Vector3(x, kind == PowerUp.Kind.Feather ? -1.7f : -3, 0);
             var power = root.GetComponent<PowerUp>(); power.kind = stage.fixedPowerUps[i]; power.pickupId = "Level8." + power.kind;
             power.durationSeconds = PowerUp.DefaultDuration(power.kind); power.icon.sprite = icons[(int)power.kind];
             PrefabUtility.RecordPrefabInstancePropertyModifications(power); PrefabUtility.RecordPrefabInstancePropertyModifications(power.icon);

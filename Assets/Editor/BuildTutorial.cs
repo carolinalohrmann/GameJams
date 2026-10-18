@@ -78,7 +78,8 @@ public static class BuildTutorial
             Visual("Vegetacion " + i, world, shrub, new Vector3(-10 + i * 4.8f, -4.03f, 0), Vector3.one * 0.55f, -4);
         }
         var barn = Single("Assets/Art/Buildings/Granero.png", 256, new Vector2(0.5f, 94f / 1024));
-        Visual("Granero - meta", world, barn, new Vector3(118, -4.02f, 0), Vector3.one, -1);
+        var barnVisual = Visual("Granero - meta", world, barn, new Vector3(118, -4.02f, 0), Vector3.one, 1);
+        AdjustPresentation.AlignBarn(barnVisual);
         // Single shared capsule prefab, icon and effect configured per instance.
         var pickupPrefab = CreatePickupPrefab();
         Pickup(pickupPrefab, PowerUp.Kind.Apple, -6, "apple.png");

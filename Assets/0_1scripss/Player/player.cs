@@ -5,10 +5,11 @@ using UnityEngine.InputSystem;
 
 public class player : MonoBehaviour
 {
+    public const int BaseHealth = 10;
     public Transform shootPoint;
     public bullet projectile;
     public float speed = 5.5f, jumpSpeed = 10f, normalFireDelay = 0.35f;
-    public int maxHealth = 5;
+    public int maxHealth = BaseHealth;
     public Animator animator;
     public SpriteRenderer characterVisual, weaponVisual;
     public Sprite minigunSprite, rockSprite, akSprite;
@@ -27,7 +28,7 @@ public class player : MonoBehaviour
     public float MinigunRemaining => weapon == Weapon.Minigun ? Mathf.Max(0, minigunUntil - Time.time) : 0;
     public float AKRemaining => Mathf.Max(0, akUntil - Time.time);
     public float MoveSpeed => speed * (CitrusRemaining > 0 ? 1.5f : 1);
-    public float FireDelay => (weapon == Weapon.Minigun ? 0.045f : weapon == Weapon.Rocks ? 0.9f : HasAK ? 0.12f : normalFireDelay) / (CitrusRemaining > 0 ? 1.5f : 1);
+    public float FireDelay => (weapon == Weapon.Minigun ? 0.045f : weapon == Weapon.Rocks ? 0.9f : HasAK ? 0.13f : normalFireDelay) / (CitrusRemaining > 0 ? 1.5f : 1);
     public string WeaponName => weapon == Weapon.Minigun ? "Minigun" : weapon == Weapon.Rocks ? "Piedras " + RockAmmo + "/5" : HasAK ? "AK" : "Pistola";
     enum Weapon { Normal, Minigun, Rocks }
     Weapon weapon;
@@ -50,7 +51,15 @@ public class player : MonoBehaviour
         spawn = transform.position;
         if (persistUpgrades)
         {
-            maxHealth = Mathf.Max(1, PlayerPrefs.GetInt(saveSlot + "MaxHealth", maxHealth));
+            bool hasSavedHealth = PlayerPrefs.HasKey(saveSlot + "MaxHealth");
+            int previousBase = PlayerPrefs.GetInt(saveSlot + "BaseHealth", hasSavedHealth ? 5 : BaseHealth);
+            maxHealth = Mathf.Max(1, PlayerPrefs.GetInt(saveSlot + "MaxHealth", maxHealth) + BaseHealth - previousBase);
+            if (previousBase != BaseHealth || !PlayerPrefs.HasKey(saveSlot + "BaseHealth"))
+            {
+                PlayerPrefs.SetInt(saveSlot + "MaxHealth", maxHealth);
+                PlayerPrefs.SetInt(saveSlot + "BaseHealth", BaseHealth);
+                PlayerPrefs.Save();
+            }
             AttackDamage = Mathf.Max(1, PlayerPrefs.GetInt(saveSlot + "AttackDamage", 1));
         }
         Health = maxHealth;
@@ -66,7 +75,7 @@ public class player : MonoBehaviour
         movement = k == null || completed ? 0 : (k.dKey.isPressed || k.rightArrowKey.isPressed ? 1 : 0) - (k.aKey.isPressed || k.leftArrowKey.isPressed ? 1 : 0);
         if (movement != 0) facing = movement > 0 ? 1 : -1;
         UpdateWeaponVisual();
-        if (!completed && k != null && (k.spaceKey.wasPressedThisFrame || k.wKey.wasPressedThisFrame || k.upArrowKey.wasPressedThisFrame)) RequestJump();
+        if (!completed && k != null && k.spaceKey.wasPressedThisFrame) RequestJump();
         bool fire = Mouse.current != null && Mouse.current.leftButton.isPressed && !TutorialCanvasUI.PointerOverUI;
         if (!completed && fire) TryShoot();
         if (k != null && k.rKey.wasPressedThisFrame && !completed) Respawn();
@@ -104,6 +113,7 @@ public class player : MonoBehaviour
         {
             if (groundedUntil <= Time.time) usedAirJump = true;
             body.linearVelocity = new Vector2(body.linearVelocity.x, jumpSpeed);
+            GameAudio.Instance?.Cue(GameAudio.Sound.PlayerJump);
             jumpBuffer = groundedUntil = 0;
             Grounded = false;
             if (animator != null) animator.Play("Jump", 0, 0);
@@ -147,6 +157,7 @@ public class player : MonoBehaviour
         UpdateWeaponVisual();
         bool rock = weapon == Weapon.Rocks;
         var shot = Instantiate(projectile, shootPoint.position, Quaternion.identity);
+        GameAudio.Instance?.PlayerShot(rock, weapon == Weapon.Minigun, HasAK);
         shot.Launch(Vector2.right * facing, hitbox, false, rock ? 8 : 12, rock ? 999 : AttackDamage);
         if (rock)
         {
@@ -165,6 +176,7 @@ public class player : MonoBehaviour
     {
         if (Dying || Time.time < invincibleUntil || ImmunityRemaining > 0 || (LevelOne.Instance != null && LevelOne.Instance.Completed)) return;
         Health = Mathf.Max(0, Health - amount);
+        GameAudio.Instance?.Cue(GameAudio.Sound.PlayerHurt);
         invincibleUntil = Time.time + 1.2f;
         if (Health <= 0) StartCoroutine(Death());
     }
@@ -177,6 +189,7 @@ public class player : MonoBehaviour
     IEnumerator Death()
     {
         Dying = true;
+        GameAudio.Instance?.Cue(GameAudio.Sound.PlayerDeath);
         movement = 0;
         body.linearVelocity = Vector2.zero;
         Animate("Death");
@@ -185,6 +198,18 @@ public class player : MonoBehaviour
         Respawn();
     }
     readonly HashSet<string> collectedApples = new HashSet<string>();
+    public void ResetAppleUpgrades()
+    {
+        maxHealth = Health = BaseHealth;
+        AttackDamage = 1;
+        if (persistUpgrades)
+        {
+            PlayerPrefs.SetInt(saveSlot + "MaxHealth", maxHealth);
+            PlayerPrefs.SetInt(saveSlot + "BaseHealth", BaseHealth);
+            PlayerPrefs.SetInt(saveSlot + "AttackDamage", AttackDamage);
+            PlayerPrefs.Save();
+        }
+    }
     public bool HasCollected(string id) => collectedApples.Contains(id);
     public bool ApplyPowerUp(PowerUp.Kind kind, string id, float durationSeconds = -1)
     {
@@ -195,8 +220,8 @@ public class player : MonoBehaviour
         {
             case PowerUp.Kind.Apple: maxHealth += 10; Health = Mathf.Min(maxHealth, Health + 10); AttackDamage++; break;
             case PowerUp.Kind.Medkit: Health = Mathf.Min(maxHealth, Health + 2); break;
-            case PowerUp.Kind.Citrus: citrusUntil = Time.time + duration; break;
-            case PowerUp.Kind.Feather: featherUntil = Time.time + duration; break;
+            case PowerUp.Kind.Citrus: citrusUntil = float.PositiveInfinity; break;
+            case PowerUp.Kind.Feather: featherUntil = float.PositiveInfinity; break;
             case PowerUp.Kind.Resistance: immunityUntil = Time.time + duration; break;
             case PowerUp.Kind.Shirt: weapon = Weapon.Minigun; minigunUntil = Time.time + duration; break;
             case PowerUp.Kind.Rock: weapon = Weapon.Rocks; RockAmmo = 5; break;
@@ -206,11 +231,13 @@ public class player : MonoBehaviour
         if (permanent && persistUpgrades)
         {
             PlayerPrefs.SetInt(saveSlot + "MaxHealth", maxHealth);
+            PlayerPrefs.SetInt(saveSlot + "BaseHealth", BaseHealth);
             PlayerPrefs.SetInt(saveSlot + "AttackDamage", AttackDamage);
             PlayerPrefs.Save();
         }
         // A new weapon or buff can be tried immediately; subsequent shots respect its delay.
         nextShot = Time.time;
+        GameAudio.Instance?.Pickup(kind);
         UpdateWeaponVisual();
         return true;
     }
@@ -226,6 +253,7 @@ public class player : MonoBehaviour
         if (persistUpgrades)
         {
             PlayerPrefs.SetInt(saveSlot + "MaxHealth", maxHealth);
+            PlayerPrefs.SetInt(saveSlot + "BaseHealth", BaseHealth);
             PlayerPrefs.Save();
         }
         Dying = false;

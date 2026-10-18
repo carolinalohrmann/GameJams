@@ -117,3 +117,7 @@ InitTestScene*.unity*
 
 # Standalone copy of the project before final levels
 /GAMEJUMP_AntesFinales/
+
+# Local backups and delivery archives
+/Respaldos/
+/*.zip

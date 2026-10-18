@@ -8,6 +8,7 @@ public class LevelOne : MonoBehaviour
     public RandomLevelLayout layout;
     public int stageNumber = 1;
     public string nextSceneName = "Level2";
+    public bool manualCompletion;
     public bool Completed { get; private set; }
     public float endX = 116;
     public float leftEdge = -11, rightEdge = 124;
@@ -19,8 +20,9 @@ public class LevelOne : MonoBehaviour
     void Update()
     {
         if (player == null || player.Dying) return;
-        if (player.transform.position.x >= endX && player.transform.position.y > -4) Completed = true;
+        if (!manualCompletion && player.transform.position.x >= endX && player.transform.position.y > -4) Completed = true;
     }
+    public void Complete() { Completed = true; }
     void LateUpdate()
     {
         if (followCamera == null || player == null) return;

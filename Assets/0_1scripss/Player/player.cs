@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,6 +15,7 @@ public class player : MonoBehaviour
     public bool persistUpgrades = true;
     public string saveSlot = SavePrefix;
     public int Health { get; private set; }
+    public int AttackDamage { get; private set; } = 1;
     public bool DoubleJump => FeatherRemaining > 0;
     public float FeatherRemaining => Mathf.Max(0, featherUntil - Time.time);
     public bool HasAK => AKRemaining > 0;
@@ -39,6 +41,7 @@ public class player : MonoBehaviour
     readonly RaycastHit2D[] groundHits = new RaycastHit2D[8];
     readonly RaycastHit2D[] wallHits = new RaycastHit2D[8];
     public const string SavePrefix = "GameJams.Tutorial.v1.";
+    public event System.Action Respawned;
 
     void Awake()
     {
@@ -47,7 +50,8 @@ public class player : MonoBehaviour
         spawn = transform.position;
         if (persistUpgrades)
         {
-            maxHealth = Mathf.Max(maxHealth, PlayerPrefs.GetInt(saveSlot + "MaxHealth", maxHealth));
+            maxHealth = Mathf.Max(1, PlayerPrefs.GetInt(saveSlot + "MaxHealth", maxHealth));
+            AttackDamage = Mathf.Max(1, PlayerPrefs.GetInt(saveSlot + "AttackDamage", 1));
         }
         Health = maxHealth;
     }
@@ -143,7 +147,7 @@ public class player : MonoBehaviour
         UpdateWeaponVisual();
         bool rock = weapon == Weapon.Rocks;
         var shot = Instantiate(projectile, shootPoint.position, Quaternion.identity);
-        shot.Launch(Vector2.right * facing, hitbox, false, rock ? 8 : 12, rock ? 999 : 1);
+        shot.Launch(Vector2.right * facing, hitbox, false, rock ? 8 : 12, rock ? 999 : AttackDamage);
         if (rock)
         {
             shot.GetComponent<SpriteRenderer>().sprite = rockSprite;
@@ -153,15 +157,22 @@ public class player : MonoBehaviour
             rockCollider.size = new Vector2(0.65f, 0.5f);
             if (--RockAmmo == 0) weapon = Weapon.Normal;
         }
+        else shot.UsePlayerEffect(weapon == Weapon.Minigun || HasAK);
         nextShot = Time.time + (rock ? 0.9f / (CitrusRemaining > 0 ? 1.5f : 1) : FireDelay);
         return true;
     }
-    public void Damage()
+    public void Damage(int amount = 1)
     {
         if (Dying || Time.time < invincibleUntil || ImmunityRemaining > 0 || (LevelOne.Instance != null && LevelOne.Instance.Completed)) return;
-        Health--;
+        Health = Mathf.Max(0, Health - amount);
         invincibleUntil = Time.time + 1.2f;
         if (Health <= 0) StartCoroutine(Death());
+    }
+    public void KillInstantly()
+    {
+        if (Dying || (LevelOne.Instance != null && LevelOne.Instance.Completed)) return;
+        Health = 0;
+        StartCoroutine(Death());
     }
     IEnumerator Death()
     {
@@ -173,7 +184,8 @@ public class player : MonoBehaviour
         yield return new WaitForSeconds(1.4f);
         Respawn();
     }
-    public bool HasCollected(string id) => persistUpgrades && PlayerPrefs.GetInt(saveSlot + "Pickup." + id, 0) == 1;
+    readonly HashSet<string> collectedApples = new HashSet<string>();
+    public bool HasCollected(string id) => collectedApples.Contains(id);
     public bool ApplyPowerUp(PowerUp.Kind kind, string id, float durationSeconds = -1)
     {
         float duration = durationSeconds > 0 ? durationSeconds : PowerUp.DefaultDuration(kind);
@@ -181,7 +193,7 @@ public class player : MonoBehaviour
         if (permanent && HasCollected(id)) return false;
         switch (kind)
         {
-            case PowerUp.Kind.Apple: maxHealth += 10; Health = Mathf.Min(maxHealth, Health + 10); break;
+            case PowerUp.Kind.Apple: maxHealth += 10; Health = Mathf.Min(maxHealth, Health + 10); AttackDamage++; break;
             case PowerUp.Kind.Medkit: Health = Mathf.Min(maxHealth, Health + 2); break;
             case PowerUp.Kind.Citrus: citrusUntil = Time.time + duration; break;
             case PowerUp.Kind.Feather: featherUntil = Time.time + duration; break;
@@ -190,10 +202,11 @@ public class player : MonoBehaviour
             case PowerUp.Kind.Rock: weapon = Weapon.Rocks; RockAmmo = 5; break;
             case PowerUp.Kind.Chicken: akUntil = Time.time + duration; break;
         }
+        if (permanent) collectedApples.Add(id);
         if (permanent && persistUpgrades)
         {
             PlayerPrefs.SetInt(saveSlot + "MaxHealth", maxHealth);
-            PlayerPrefs.SetInt(saveSlot + "Pickup." + id, 1);
+            PlayerPrefs.SetInt(saveSlot + "AttackDamage", AttackDamage);
             PlayerPrefs.Save();
         }
         // A new weapon or buff can be tried immediately; subsequent shots respect its delay.
@@ -208,6 +221,13 @@ public class player : MonoBehaviour
     public void Respawn()
     {
         StopAllCoroutines();
+        int previousMaximum = maxHealth;
+        maxHealth = Mathf.Max(1, maxHealth - 5);
+        if (persistUpgrades)
+        {
+            PlayerPrefs.SetInt(saveSlot + "MaxHealth", maxHealth);
+            PlayerPrefs.Save();
+        }
         Dying = false;
         Health = maxHealth;
         transform.position = spawn;
@@ -217,5 +237,7 @@ public class player : MonoBehaviour
         usedAirJump = false;
         animationState = null;
         Animate("Idle");
+        Respawned?.Invoke();
+        if (LevelOne.Instance != null) LevelOne.Instance.Notify("Reinicio: -" + (previousMaximum - maxHealth) + " de vida máxima. Mínimo: 1.");
     }
 }

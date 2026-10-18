@@ -78,8 +78,8 @@ public static class BuildLevelOne
         var level = new GameObject("Nivel 1 - reglas y HUD").AddComponent<LevelOne>();
         level.player = p;
         level.followCamera = camera;
-        EditorSceneManager.SaveScene(scene, "Assets/0_0Scenes/Level1.unity");
-        EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene("Assets/0_0Scenes/Level1.unity", true) };
+        EditorSceneManager.SaveScene(scene, "Assets/0_0Scenes/Tutorial.unity");
+        EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene("Assets/0_0Scenes/Tutorial.unity", true) };
         AssetDatabase.SaveAssets();
         Debug.Log("LEVEL_ONE_BUILD_OK");
     }

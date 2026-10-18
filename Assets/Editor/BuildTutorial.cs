@@ -104,7 +104,7 @@ public static class BuildTutorial
         level.endX = 116; level.leftEdge = -11; level.rightEdge = 124;
         Camera.main.backgroundColor = Color.gray;
         BuildTutorialCanvas.Create(level);
-        EditorSceneManager.SaveScene(scene, "Assets/0_0Scenes/Level1.unity");
+        EditorSceneManager.SaveScene(scene, "Assets/0_0Scenes/Tutorial.unity");
         AssetDatabase.SaveAssets();
         Debug.Log("TUTORIAL_BUILD_OK: horse animations, Jungle, Skeleton, provisional ranged, barn, 8 powerups");
     }

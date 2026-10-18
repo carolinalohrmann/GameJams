@@ -1,4 +1,5 @@
 using UnityEditor;
+using System.IO;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -10,12 +11,41 @@ public static class BuildTutorialCanvas
     static Font font;
     static readonly Color ink = new Color(0.95f, 0.95f, 0.95f);
     static readonly Color muted = new Color(0.74f, 0.77f, 0.8f);
+    [InitializeOnLoadMethod]
+    static void ApplyPendingHealthReset()
+    {
+        string request = Path.GetFullPath(Path.Combine(Application.dataPath, "../Logs/ResetHearts.request"));
+        if (!File.Exists(request)) return;
+        ResetHearts();
+        File.Delete(request);
+    }
+    [MenuItem("GameJams/Reiniciar corazones a 5")]
+    public static void ResetHearts()
+    {
+        PlayerPrefs.SetInt(player.SavePrefix + "MaxHealth", 5);
+        PlayerPrefs.Save();
+        Debug.Log("HEARTS_RESET_OK: 5 corazones para la siguiente partida.");
+    }
     public static void Apply()
     {
-        var scene = EditorSceneManager.OpenScene("Assets/0_0Scenes/Level1.unity");
+        var scene = EditorSceneManager.OpenScene("Assets/0_0Scenes/Tutorial.unity");
         Create(Object.FindAnyObjectByType<LevelOne>());
         EditorSceneManager.SaveScene(scene); AssetDatabase.SaveAssets();
         Debug.Log("TUTORIAL_CANVAS_BUILD_OK");
+    }
+    [MenuItem("GameJams/Actualizar canvas de habilidades")]
+    public static void ApplyAll()
+    {
+        for (int stage = 1; stage <= 8; stage++)
+        {
+            string name = stage == 1 ? "Tutorial" : "Level" + stage;
+            var scene = EditorSceneManager.OpenScene("Assets/0_0Scenes/" + name + ".unity");
+            Create(Object.FindAnyObjectByType<LevelOne>());
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+        }
+        AssetDatabase.SaveAssets();
+        Debug.Log("ABILITIES_CANVAS_BUILD_OK");
     }
     public static void Create(LevelOne level)
     {
@@ -35,16 +65,10 @@ public static class BuildTutorialCanvas
         var guideRect = (RectTransform)ui.guideButton.transform;
         guideRect.anchorMin = guideRect.anchorMax = guideRect.pivot = Vector2.one;
         guideRect.anchoredPosition = new Vector2(-20, -15);
-        var footer = StretchPanel(root.transform, "Ayuda contextual", false, 86, new Color(0.055f, 0.06f, 0.07f, 0.88f));
-        ui.contextText = Label(footer, "Efecto cercano", "Llega al granero.", 20, 8, 1240, 26, 17);
-        FillWidth(ui.contextText.rectTransform, 20);
-        var controls = Label(footer, "Controles permanentes", "A / D o flechas: mover     Espacio: saltar     Clic izquierdo: disparar     R: volver al inicio     H: guía", 20, 39, 1240, 42, 15);
-        FillWidth(controls.rectTransform, 20);
-        controls.color = muted;
-        ui.completionPanel = Panel(root.transform, "Nivel completado", 400, 190, new Color(0.08f, 0.09f, 0.105f, 0.98f)).gameObject;
-        ui.completionTitleText = Label(ui.completionPanel.transform, "Titulo", "Nivel 1 completado", 24, 25, 352, 36, 26, true);
-        ui.completionDescriptionText = Label(ui.completionPanel.transform, "Detalle", "Has terminado el tutorial.", 24, 70, 352, 26, 17);
-        ui.restartButton = Button(ui.completionPanel.transform, "Repetir", "Volver a jugar", 80, 125, 240, 40);
+        ui.completionPanel = Panel(root.transform, "Nivel completado", 620, 250, new Color(0.08f, 0.09f, 0.105f, 0.98f)).gameObject;
+        ui.completionTitleText = Label(ui.completionPanel.transform, "Titulo", "Tutorial completado", 24, 25, 572, 64, 26, true);
+        ui.completionDescriptionText = Label(ui.completionPanel.transform, "Detalle", "Has terminado el tutorial.", 24, 96, 572, 52, 17);
+        ui.restartButton = Button(ui.completionPanel.transform, "Repetir", "Volver a jugar", 190, 178, 240, 40);
         ui.completionPanel.SetActive(false);
         var shade = new GameObject("Guia del tutorial", typeof(RectTransform), typeof(Image)); shade.transform.SetParent(root.transform, false);
         var shadeRect = shade.GetComponent<RectTransform>(); shadeRect.anchorMin = Vector2.zero; shadeRect.anchorMax = Vector2.one; shadeRect.offsetMin = shadeRect.offsetMax = Vector2.zero;
@@ -52,14 +76,14 @@ public static class BuildTutorialCanvas
         ui.guidePanel = shade;
         var panel = Panel(shade.transform, "Guia", 960, 600, new Color(0.075f, 0.085f, 0.1f, 0.99f));
         ui.guideContent = panel;
-        ui.stageTitleText = Label(panel, "Titulo", "NIVEL 1  /  APRENDE A JUGAR", 28, 22, 900, 38, 29, true);
+        ui.stageTitleText = Label(panel, "Titulo", "Tutorial", 28, 22, 900, 38, 29, true);
         ui.stageObjectiveText = Label(panel, "Objetivo", "Llega al granero. Recoge y prueba cada poder por el camino.", 28, 68, 900, 28, 18);
         ui.stageObjectiveText.color = muted;
         Label(panel, "Controles", "A / D o ← / →  Mover     Espacio / W / ↑  Saltar     Clic izquierdo  Disparar", 28, 112, 900, 28, 19, true);
-        Label(panel, "Doble salto", "Con Pluma: vuelve a pulsar salto en el aire.  R: volver al inicio.", 28, 146, 900, 26, 17);
+        Label(panel, "Doble salto", "Con Pluma: doble salto. Morir, caer o pulsar R resta 5 de vida máxima (mínimo 1).", 28, 146, 900, 26, 17);
         string[] icons = { "apple.png", "botikin.png", "citrus.png", "pluma.png", "powerup resistencias.png", "camisa.png", "lanzpiedra.png", "Chicken.png" };
         string[] titles = { "Apple · permanente", "Botiquín · instantáneo", "Citrus · 10 segundos", "Pluma · 5 segundos", "Resistencia · 10 segundos", "Camisa · 5 segundos", "Lanzapiedra · 5 disparos", "Chicken / AK · 10 segundos" };
-        string[] descriptions = { "+10 de vida máxima y actual. Se guarda.", "Cura 2 corazones, sin superar el máximo.", "+50% de movimiento y velocidad de disparo.", "Permite un segundo salto en el aire.", "No recibes daño mientras dura el efecto.", "Minigun muy rápida y munición ilimitada.", "Tiros lentos y letales. Sin límite de tiempo.", "Disparo rápido; luego vuelve la pistola." };
+        string[] descriptions = { "+10 de vida y +1 de daño. Se guarda.", "Cura 2 corazones, sin superar el máximo.", "+50% de movimiento y velocidad de disparo.", "Permite un segundo salto en el aire.", "No recibes daño mientras dura el efecto.", "Minigun muy rápida y munición ilimitada.", "Tiros lentos y letales. Sin límite de tiempo.", "Disparo rápido; luego vuelve la pistola." };
         for (int i = 0; i < icons.Length; i++)
         {
             float x = i % 2 == 0 ? 28 : 488, y = 194 + (i / 2) * 76;
@@ -73,6 +97,8 @@ public static class BuildTutorialCanvas
         Label(panel, "Pausa", "Juego en pausa · H abre y cierra esta guía.", 28, 536, 550, 30, 16);
         ui.continueButton = Button(panel, "Empezar o continuar", "Empezar  [Enter]", 676, 528, 256, 44);
         ui.continueText = ui.continueButton.GetComponentInChildren<Text>();
+        PolishCombatAndLayout.ConfigureHearts(ui);
+        ui.ConfigureStageText();
         if (Object.FindAnyObjectByType<EventSystem>() == null)
             new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
     }

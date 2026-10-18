@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -10,9 +10,14 @@ public static class PreviewTutorialCanvas
     static RenderTexture target;
     static Camera camera;
     static int frame;
+    public static void RestoreAndRender()
+    {
+        BuildTutorialCanvas.ApplyAll();
+        Render();
+    }
     public static void Render()
     {
-        EditorSceneManager.OpenScene("Assets/0_0Scenes/Level1.unity");
+        EditorSceneManager.OpenScene("Assets/0_0Scenes/Tutorial.unity");
         var ui = Object.FindAnyObjectByType<TutorialCanvasUI>();
         camera = Camera.main; camera.aspect = 16f / 9;
         target = new RenderTexture(1280, 720, 24); target.Create(); camera.targetTexture = target;

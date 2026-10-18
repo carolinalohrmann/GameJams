@@ -13,8 +13,9 @@ public class TutorialCanvasUI : MonoBehaviour
     public bool showGuideOnStart = true;
     public GameObject guidePanel, completionPanel;
     public RectTransform guideContent;
-    public Text healthText, statusText, contextText, continueText;
+    public Text healthText, statusText, continueText;
     public Text stageTitleText, stageObjectiveText, completionTitleText, completionDescriptionText;
+    public Text simpleGuideText;
     public Button guideButton, continueButton, restartButton;
     public bool GuideOpen => guidePanel != null && guidePanel.activeSelf;
     bool paused;
@@ -47,8 +48,8 @@ public class TutorialCanvasUI : MonoBehaviour
     {
         if (player == null || level == null) return;
         var canvasSize = ((RectTransform)transform).rect.size;
-        guideContent.localScale = Vector3.one * Mathf.Min(1, (canvasSize.x - 32) / 960, (canvasSize.y - 32) / 600);
-        healthText.text = "VIDA  " + player.Health + " / " + player.maxHealth;
+        guideContent.localScale = Vector3.one * Mathf.Min(1, (canvasSize.x - 32) / guideContent.sizeDelta.x, (canvasSize.y - 32) / guideContent.sizeDelta.y);
+        healthText.text = GetComponent<HealthHeartsUI>() != null ? "VIDA" : "VIDA  " + player.Health + " / " + player.maxHealth;
         string status = player.WeaponName;
         if (player.MinigunRemaining > 0) status += "  " + Mathf.CeilToInt(player.MinigunRemaining) + " s";
         if (player.WeaponName == "AK") status += "  " + Mathf.CeilToInt(player.AKRemaining) + " s";
@@ -56,43 +57,54 @@ public class TutorialCanvasUI : MonoBehaviour
         if (player.ImmunityRemaining > 0) status += "   |   Inmune " + Mathf.CeilToInt(player.ImmunityRemaining) + " s";
         if (player.DoubleJump) status += "   |   Doble salto " + Mathf.CeilToInt(player.FeatherRemaining) + " s";
         statusText.text = status;
-        string context = level.CurrentNotice;
-        if (context == null && !GuideOpen && !level.Completed)
-        {
-            float nearest = 3;
-            foreach (var power in FindObjectsByType<PowerUp>())
-            {
-                float distance = Vector2.Distance(player.transform.position, power.transform.position);
-                if (distance < nearest) { nearest = distance; context = power.Title; }
-            }
-        }
-        contextText.text = context ?? (level.stageNumber == 1
-            ? "Llega al granero. Recoge los poderes para practicar."
-            : "Llega a la salida. Recoge los poderes de esta partida.");
         completionPanel.SetActive(level.Completed && !GuideOpen);
     }
-    void ConfigureStageText()
+    public void ConfigureStageText()
     {
-        if (stageTitleText != null) stageTitleText.text = "NIVEL " + level.stageNumber + "  /  APRENDE A JUGAR";
+        var campaign = level.GetComponent<FinalCampaignStage>();
+        if (campaign != null) { campaign.ConfigureUI(this); return; }
+        if (stageTitleText != null) stageTitleText.text = level.stageNumber == 1 ? "Tutorial" : "NIVEL " + level.stageNumber;
         if (stageObjectiveText != null)
             stageObjectiveText.text = level.stageNumber == 1
                 ? "Cruza la jungla y llega al granero."
-                : "Atraviesa el prado y llega a la salida.";
+                : level.stageNumber == 2 || level.stageNumber == 4 ? "Atraviesa el prado y llega a la salida." : "Atraviesa el bosque y llega a la salida.";
         if (completionTitleText != null)
-            completionTitleText.text = "Nivel " + level.stageNumber + " completado";
+            completionTitleText.text = level.stageNumber == 1 ? "Tutorial completado" : "Nivel " + level.stageNumber + " completado";
         if (completionDescriptionText != null)
             completionDescriptionText.text = level.stageNumber == 1
-                ? "¡Bien! El bosque es la siguiente etapa."
-                : "¡Completaste los dos niveles!";
+                ? "¡Tutorial completado! Sigue hacia el prado."
+                : level.nextSceneName == "Tutorial" ? "¡Completaste todos los niveles!" : "¡Bien! Continua a la siguiente etapa.";
         var actionLabel = restartButton.GetComponentInChildren<Text>();
         if (actionLabel != null)
-            actionLabel.text = level.nextSceneName == "Level2" ? "Siguiente nivel" : "Jugar de nuevo";
+            actionLabel.text = level.nextSceneName == "Tutorial" ? "Jugar de nuevo" : "Siguiente nivel";
     }
 
     void ConfigurePowerUpGuide()
     {
-        if (level.layout == null || guideContent == null) return;
-        var kinds = level.layout.AvailablePowerUps;
+        if (simpleGuideText != null) { ConfigureSimpleGuide(); return; }
+        var campaign = level.GetComponent<FinalCampaignStage>();
+        if (campaign != null && level.layout == null)
+        {
+            ConfigureGuide(campaign.fixedPowerUps, campaign.powerUpIcons);
+            campaign.ConfigureUI(this);
+            return;
+        }
+        if (level.stageNumber == 1 || level.layout == null || guideContent == null) return;
+        ConfigureGuide(level.layout.AvailablePowerUps, level.layout.powerUpIcons);
+        if (campaign != null) campaign.ConfigureUI(this);
+    }
+    void ConfigureSimpleGuide()
+    {
+        string text = "A/D o flechas: mover\nEspacio, W o arriba: saltar\nClic izquierdo: disparar\nH: abrir/cerrar esta ayuda\nR: reiniciar (-5 de vida máxima, mínimo 1)\n\nPODERES\n";
+        var campaign = level.GetComponent<FinalCampaignStage>();
+        var kinds = level.layout != null ? level.layout.AvailablePowerUps
+            : campaign != null ? (System.Collections.Generic.IReadOnlyList<PowerUp.Kind>)campaign.fixedPowerUps
+            : (PowerUp.Kind[])System.Enum.GetValues(typeof(PowerUp.Kind));
+        foreach (var kind in kinds) text += PowerUpName(kind) + ": " + PowerUpDescription(kind) + "\n";
+        simpleGuideText.text = text;
+    }
+    void ConfigureGuide(System.Collections.Generic.IReadOnlyList<PowerUp.Kind> kinds, Sprite[] icons)
+    {
         var cards = new RectTransform[8];
         for (int i = 0; i < cards.Length; i++)
             cards[i] = guideContent.Find("Poder " + i) as RectTransform;
@@ -107,14 +119,14 @@ public class TutorialCanvasUI : MonoBehaviour
             var kind = kinds[i];
             cards[i].anchoredPosition = new Vector2(i % 2 == 0 ? 28 : 488, -(194 + i / 2 * 76));
             var icon = cards[i].Find("Icono").GetComponent<Image>();
-            icon.sprite = level.layout.powerUpIcons[(int)kind];
+            icon.sprite = icons[(int)kind];
             cards[i].Find("Nombre").GetComponent<Text>().text = PowerUpName(kind);
             cards[i].Find("Explicacion").GetComponent<Text>().text = PowerUpDescription(kind);
         }
 
         var jumpHint = guideContent.Find("Doble salto");
         if (jumpHint != null)
-            jumpHint.GetComponent<Text>().text = "Usa los poderes de esta partida.  R: volver al inicio.";
+            jumpHint.GetComponent<Text>().text = "Usa los poderes de esta partida. Morir, caer o R resta 5 de vida máxima (mínimo 1).";
     }
 
     void LoadNextStage()
@@ -144,7 +156,7 @@ public class TutorialCanvasUI : MonoBehaviour
     {
         switch (kind)
         {
-            case PowerUp.Kind.Apple: return "+10 de vida máxima y actual.";
+            case PowerUp.Kind.Apple: return "+10 de vida y +1 de daño. Se guarda.";
             case PowerUp.Kind.Medkit: return "Cura 2 corazones.";
             case PowerUp.Kind.Citrus: return "+50% movimiento y disparo.";
             case PowerUp.Kind.Feather: return "Permite un segundo salto.";

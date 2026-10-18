@@ -7,7 +7,7 @@ public static class ImproveReadability
 {
     public static void Apply()
     {
-        var scene = EditorSceneManager.OpenScene("Assets/0_0Scenes/Level1.unity");
+        var scene = EditorSceneManager.OpenScene("Assets/0_0Scenes/Tutorial.unity");
         const string path = "Assets/0_2prefafs/PowerUpCapsule.prefab";
         var prefab = PrefabUtility.LoadPrefabContents(path);
         Resize(prefab.GetComponent<PowerUp>());

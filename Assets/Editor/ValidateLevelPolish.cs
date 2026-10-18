@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -23,7 +23,8 @@ public static class ValidateLevelPolish
     }
     public static void Run()
     {
-        EditorSceneManager.OpenScene("Assets/0_0Scenes/Level1.unity");
+        EditorSceneManager.OpenScene("Assets/0_0Scenes/Tutorial.unity");
+        if (UnityEngine.Object.FindAnyObjectByType<RandomLevelLayout>() != null) { ValidateGameLevels.Run(); return; }
         var p = UnityEngine.Object.FindAnyObjectByType<player>(); p.persistUpgrades = false;
         var ui = UnityEngine.Object.FindAnyObjectByType<TutorialCanvasUI>();
         if (ui != null) ui.showGuideOnStart = false;

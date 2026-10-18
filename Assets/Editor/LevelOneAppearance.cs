@@ -6,7 +6,7 @@ public static class LevelOneAppearance
 {
     public static void Apply()
     {
-        var scene = EditorSceneManager.OpenScene("Assets/0_0Scenes/Level1.unity");
+        var scene = EditorSceneManager.OpenScene("Assets/0_0Scenes/Tutorial.unity");
         foreach (var sr in Object.FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None))
         {
             if (sr.name.StartsWith("Fondo geometrico ")) Object.DestroyImmediate(sr.gameObject);

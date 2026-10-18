@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -25,7 +25,7 @@ public static class ValidateTutorialCanvas
     }
     public static void Run()
     {
-        EditorSceneManager.OpenScene("Assets/0_0Scenes/Level1.unity");
+        EditorSceneManager.OpenScene("Assets/0_0Scenes/Tutorial.unity");
         UnityEngine.Object.FindAnyObjectByType<player>().persistUpgrades = false;
         SessionState.SetBool("CanvasValidation", true); EditorApplication.EnterPlaymode();
     }
@@ -52,13 +52,12 @@ public static class ValidateTutorialCanvas
         Require(EventSystem.current.currentSelectedGameObject == ui.continueButton.gameObject, "Enter should select Continue rather than reopen the guide");
         var text = string.Join("\n", ui.guideContent.GetComponentsInChildren<Text>().Select(t => t.text));
         foreach (string term in new[] { "Mover", "Saltar", "Disparar" })
-            Require(text.Contains(term), "Missing control explanation: " + term);
-        Require(text.Contains("Clic izquierdo") && text.Contains("Usa los poderes de esta partida.") &&
+            Require(text.ToLowerInvariant().Contains(term.ToLowerInvariant()), "Missing control explanation: " + term);
+        Require(text.Contains("Clic izquierdo") && (ui.simpleGuideText != null ? text.Contains("PODERES") : text.Contains(ui.level.stageNumber == 1 ? "Con Pluma:" : "Usa los poderes de esta partida.")) &&
             !text.Contains("checkpoint") && !text.Contains("J /"), "Guide must explain current controls and generated powerups");
         var icons = ui.guideContent.GetComponentsInChildren<Image>()
             .Where(i => i.name == "Icono" && i.isActiveAndEnabled).ToArray();
-        Require(icons.Length == 3 && icons.All(i => i.sprite != null) &&
-            ui.level.layout.AvailablePowerUps.Count == 3, "Guide must show the three powerups generated for this run");
+        Require(ui.simpleGuideText != null ? icons.Length == 0 : icons.Length == (ui.level.stageNumber == 1 ? 8 : 3) && icons.All(i => i.sprite != null), "Guide must show plain explanations or the legacy icons");
         ui.continueButton.onClick.Invoke();
         yield return 0.2f;
         Require(!ui.GuideOpen && Time.timeScale == 1 && !TutorialCanvasUI.BlocksGameplay, "Continue button should resume gameplay");

@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -13,7 +13,7 @@ public static class PreviewTutorial
     static RenderTexture target;
     public static void Render()
     {
-        EditorSceneManager.OpenScene("Assets/0_0Scenes/Level1.unity");
+        EditorSceneManager.OpenScene("Assets/0_0Scenes/Tutorial.unity");
         Directory.CreateDirectory("Logs/Previews");
         camera = Camera.main; camera.aspect = 16f / 9;
         target = new RenderTexture(1280, 720, 24); target.Create();

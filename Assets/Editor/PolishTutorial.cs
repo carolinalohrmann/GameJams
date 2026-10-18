@@ -1,4 +1,4 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
@@ -6,7 +6,7 @@ public static class PolishTutorial
 {
     public static void Apply()
     {
-        var scene = EditorSceneManager.OpenScene("Assets/0_0Scenes/Level1.unity");
+        var scene = EditorSceneManager.OpenScene("Assets/0_0Scenes/Tutorial.unity");
         var p = Object.FindAnyObjectByType<player>();
         var box = p.GetComponent<BoxCollider2D>();
         if (box != null) Object.DestroyImmediate(box);

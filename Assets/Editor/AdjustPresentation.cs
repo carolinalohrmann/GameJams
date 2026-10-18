@@ -6,7 +6,7 @@ public static class AdjustPresentation
 {
     public static void Apply()
     {
-        var scene = EditorSceneManager.OpenScene("Assets/0_0Scenes/Level1.unity");
+        var scene = EditorSceneManager.OpenScene("Assets/0_0Scenes/Tutorial.unity");
         var importer = (TextureImporter)AssetImporter.GetAtPath("Assets/Art/Buildings/Granero.png");
         var settings = new TextureImporterSettings(); importer.ReadTextureSettings(settings);
         // Bottom of the visible wood, ignoring the transparent glow and border.

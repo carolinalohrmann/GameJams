@@ -119,14 +119,14 @@ public static class ValidateGameLevels
             Require(ui.GuideOpen && Time.timeScale == 0, "Every stage must open its guide with gameplay paused");
             bool tutorial = stage == 1;
             if (tutorial) Require(ui.stageTitleText.text == "Tutorial", "Tutorial title must not be numbered");
-            int expectedPowers = tutorial ? 8 : 3;
+            int apples = UnityEngine.Object.FindObjectsByType<PowerUp>().Count(power => power.kind == PowerUp.Kind.Apple);
+            int expectedPowers = tutorial ? 7 + apples : 3;
             if (!tutorial) Require(layout.AvailablePowerUps.Count == 3 && layout.AvailablePowerUps.Distinct().Count() == 3, "Generator must choose three distinct powers");
             else Require(layout == null && UnityEngine.Object.FindAnyObjectByType<RandomLevelLayout>() == null, "Tutorial must not be replaced by the generator");
             Require(UnityEngine.Object.FindObjectsByType<PowerUp>().Length == expectedPowers, "Wrong number of pickups for this stage");
-            int apples = UnityEngine.Object.FindObjectsByType<PowerUp>().Count(power => power.kind == PowerUp.Kind.Apple);
-            Require(tutorial ? apples == 1 : apples <= 1, "Tutorial keeps its apple; generated levels may offer at most one");
+            Require(apples <= 1, "Tutorial and generated levels may offer at most one apple");
             Require(ui.simpleGuideText != null ? ui.simpleGuideText.text.Contains("PODERES") && ui.simpleGuideText.text.Contains("R:")
-                : ui.guideContent.GetComponentsInChildren<Image>().Count(i => i.name == "Icono") == expectedPowers, "Guide must explain controls and powers");
+                : ui.guideContent.GetComponentsInChildren<Image>().Count(i => i.name == "Icono") == (tutorial ? 8 : expectedPowers), "Tutorial explains every power, including the optional apple");
             var world = GameObject.Find(tutorial ? "Tutorial - Jungle" : "Procedural level " + stage);
             Require(world != null && (tutorial || GameObject.Find("Tutorial - Jungle") == null), "Wrong world for this stage");
             if (stage == 3 || stage == 4 || stage == 5)
@@ -146,7 +146,9 @@ public static class ValidateGameLevels
             fingerprints[stage] = fingerprint;
             var goal = GameObject.Find(tutorial ? "Granero - meta" : "Level " + stage + " goal").GetComponent<SpriteRenderer>();
             var exitFloor = routes.SingleOrDefault(c => c.bounds.min.x < level.endX && c.bounds.max.x > level.endX);
-            Require(exitFloor != null && Mathf.Abs(VisibleFoot(goal) - exitFloor.bounds.max.y) < 0.07f, "Exit must rest on a real platform");
+            float foot = VisibleFoot(goal);
+            Require(exitFloor != null && (tutorial ? foot <= exitFloor.bounds.max.y + 0.02f && foot >= exitFloor.bounds.max.y - 0.6f
+                : Mathf.Abs(foot - exitFloor.bounds.max.y) < 0.07f), "Exit must rest on a real platform; perspective corners may sit inside the soil");
             foreach (var route in routes)
                 if (!tutorial) Require(Mathf.Abs(route.transform.Find("Top").GetComponent<SpriteRenderer>().bounds.max.y - route.bounds.max.y) < 0.001f, "Visible ground must align with its collider");
             var enemies = world.GetComponentsInChildren<Enemy>();

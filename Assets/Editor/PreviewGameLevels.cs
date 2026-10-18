@@ -30,6 +30,12 @@ public static class PreviewGameLevels
     {
         SessionState.SetBool("PreviewGameLevelsHUD", true); Run();
     }
+    public static void PreviewAlignedBarn()
+    {
+        AdjustPresentation.ApplyBuildings();
+        SessionState.SetBool("PreviewTutorialOnly", true);
+        RunWithHUD();
+    }
     static void Frame()
     {
         try
@@ -64,6 +70,12 @@ public static class PreviewGameLevels
             File.WriteAllBytes("Logs/Previews/level" + level.stageNumber + (exit ? "-exit.png" : "-route.png"), texture.EncodeToPNG());
             UnityEngine.Object.DestroyImmediate(texture); RenderTexture.active = null;
             frame = 0; view++;
+            if (view == 2 && SessionState.GetBool("PreviewTutorialOnly", false))
+            {
+                SessionState.SetBool("PreviewTutorialOnly", false);
+                SessionState.SetBool("PreviewGameLevels", false);
+                Debug.Log("ALIGNED_BARN_PREVIEW_OK"); EditorApplication.Exit(0); return;
+            }
             if (view == 2) SceneManager.LoadScene("Level2");
             if (view == 4) SceneManager.LoadScene("Level3");
             if (view == 6) SceneManager.LoadScene("Level4");

@@ -133,9 +133,9 @@ public static class ValidateLevelPolish
         finally { Physics2D.simulationMode = originalMode; }
         movement.SetValue(p, 0f); p.enabled = true; p.Respawn();
         p.ApplyPowerUp(PowerUp.Kind.Shirt, "defaultDuration");
-        Require(p.MinigunRemaining > 4.9f && p.MinigunRemaining <= 5, "Unspecified timed powerup must default to 5 seconds");
-        yield return 5.2f;
-        Require(p.MinigunRemaining == 0 && p.WeaponName == "Pistola", "Default 5-second effect did not expire");
+        Require(p.MinigunRemaining > 9.9f && p.MinigunRemaining <= 10, "Camisa must last 10 seconds");
+        yield return 10.2f;
+        Require(p.MinigunRemaining == 0 && p.WeaponName == "Pistola", "10-second minigun did not expire");
         p.ApplyPowerUp(PowerUp.Kind.Rock, "defaultRocks");
         Require(p.RockAmmo == 5, "Rock effect needs 5 shots");
         yield return 5.2f;
@@ -143,6 +143,6 @@ public static class ValidateLevelPolish
         p.ApplyPowerUp(PowerUp.Kind.Citrus, "explicitCitrus");
         p.ApplyPowerUp(PowerUp.Kind.Resistance, "explicitResistance");
         p.ApplyPowerUp(PowerUp.Kind.Chicken, "explicitAK");
-        Require(p.CitrusRemaining > 9.9f && p.ImmunityRemaining > 9.9f && p.AKRemaining > 9.9f, "Explicit 10-second durations must be preserved");
+        Require(float.IsPositiveInfinity(p.CitrusRemaining) && p.ImmunityRemaining > 9.9f && p.AKRemaining > 14.9f, "Citrus must last the level, resistance 10 seconds and AK 15 seconds");
     }
 }

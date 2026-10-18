@@ -16,7 +16,7 @@ public class LevelOne : MonoBehaviour
     float noticeUntil;
     public string CurrentNotice => Time.time < noticeUntil ? notice : null;
     public void Notify(string text) { notice = text; noticeUntil = Time.time + 4; }
-    void Awake() { Instance = this; }
+    void Awake() { Instance = this; if (GetComponent<GameAudio>() == null) gameObject.AddComponent<GameAudio>(); }
     void Update()
     {
         if (player == null || player.Dying) return;

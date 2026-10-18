@@ -212,7 +212,8 @@ public class RandomLevelLayout : MonoBehaviour
 
     void BuildPickups(System.Random random)
     {
-        var kinds = (PowerUp.Kind[])Enum.GetValues(typeof(PowerUp.Kind));
+        var kinds = Array.FindAll((PowerUp.Kind[])Enum.GetValues(typeof(PowerUp.Kind)),
+            kind => PowerUp.IsAvailableInStage(kind, stageNumber));
         for (int i = kinds.Length - 1; i > 0; i--)
         {
             int other = random.Next(i + 1);
@@ -276,7 +277,7 @@ public class RandomLevelLayout : MonoBehaviour
                 enemy.GetComponent<Enemy>().patrolDistance = patrol;
                 if (stageNumber == 7)
                 {
-                    var stronger = enemy.GetComponent<Enemy>(); stronger.health = Mathf.Max(5, stronger.health * 3);
+                    var stronger = enemy.GetComponent<Enemy>(); stronger.health = 10;
                     stronger.contactDamage = stronger.projectileDamage = 2; stronger.moveSpeed *= 1.2f;
                 }
                 placed++;

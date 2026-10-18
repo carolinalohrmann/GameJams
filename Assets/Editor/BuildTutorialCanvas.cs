@@ -14,17 +14,34 @@ public static class BuildTutorialCanvas
     [InitializeOnLoadMethod]
     static void ApplyPendingHealthReset()
     {
+        string statsRequest = Path.GetFullPath(Path.Combine(Application.dataPath, "../Logs/ResetPlayerStats.request"));
+        if (File.Exists(statsRequest))
+        {
+            ResetPlayerStats();
+            File.Delete(statsRequest);
+        }
         string request = Path.GetFullPath(Path.Combine(Application.dataPath, "../Logs/ResetHearts.request"));
         if (!File.Exists(request)) return;
         ResetHearts();
         File.Delete(request);
     }
-    [MenuItem("GameJams/Reiniciar corazones a 5")]
+    [MenuItem("GameJams/Reiniciar corazones a 10")]
     public static void ResetHearts()
     {
-        PlayerPrefs.SetInt(player.SavePrefix + "MaxHealth", 5);
+        PlayerPrefs.SetInt(player.SavePrefix + "MaxHealth", player.BaseHealth);
+        PlayerPrefs.SetInt(player.SavePrefix + "BaseHealth", player.BaseHealth);
         PlayerPrefs.Save();
-        Debug.Log("HEARTS_RESET_OK: 5 corazones para la siguiente partida.");
+        Debug.Log("HEARTS_RESET_OK: 10 corazones para la siguiente partida.");
+    }
+    [MenuItem("GameJams/Reiniciar vida y daño iniciales")]
+    public static void ResetPlayerStats()
+    {
+        PlayerPrefs.SetInt(player.SavePrefix + "MaxHealth", player.BaseHealth);
+        PlayerPrefs.SetInt(player.SavePrefix + "BaseHealth", player.BaseHealth);
+        PlayerPrefs.SetInt(player.SavePrefix + "AttackDamage", 1);
+        PlayerPrefs.Save();
+        if (Application.isPlaying) Object.FindAnyObjectByType<player>()?.ResetAppleUpgrades();
+        Debug.Log("PLAYER_STATS_RESET_OK: 10 corazones y 1 de daño para la siguiente partida.");
     }
     public static void Apply()
     {
@@ -41,6 +58,15 @@ public static class BuildTutorialCanvas
             string name = stage == 1 ? "Tutorial" : "Level" + stage;
             var scene = EditorSceneManager.OpenScene("Assets/0_0Scenes/" + name + ".unity");
             Create(Object.FindAnyObjectByType<LevelOne>());
+            foreach (var pickup in Object.FindObjectsByType<PowerUp>())
+            {
+                pickup.durationSeconds = PowerUp.DefaultDuration(pickup.kind);
+                PrefabUtility.RecordPrefabInstancePropertyModifications(pickup);
+            }
+            var barn = GameObject.Find("Granero - meta");
+            if (barn != null) AdjustPresentation.AlignBarn(barn.GetComponent<SpriteRenderer>());
+            var campaign = Object.FindAnyObjectByType<FinalCampaignStage>();
+            if (campaign != null) campaign.towerFootOffset = AdjustPresentation.VisibleBottom(campaign.towerSprite);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
         }
@@ -58,13 +84,17 @@ public static class BuildTutorialCanvas
         scaler.referenceResolution = new Vector2(1280, 720); scaler.matchWidthOrHeight = 0.5f;
         var ui = root.AddComponent<TutorialCanvasUI>(); ui.player = level.player; ui.level = level;
         var header = StretchPanel(root.transform, "Estado", true, 80, new Color(0.055f, 0.06f, 0.07f, 0.9f));
-        ui.healthText = Label(header, "Vida", "VIDA  5 / 5", 18, 10, 175, 30, 21, true);
+        ui.healthText = Label(header, "Vida", "VIDA  10 / 10", 18, 10, 175, 30, 21, true);
         ui.statusText = Label(header, "Arma y efectos", "Pistola", 18, 45, 870, 28, 17);
         FillWidth(ui.statusText.rectTransform, 18);
-        ui.guideButton = Button(header, "Abrir guia", "Guía  [H]", 1100, 15, 150, 40);
+        ui.guideButton = Button(root.transform, "Abrir guia", "Guía", 0, 0, 150, 40);
         var guideRect = (RectTransform)ui.guideButton.transform;
-        guideRect.anchorMin = guideRect.anchorMax = guideRect.pivot = Vector2.one;
-        guideRect.anchoredPosition = new Vector2(-20, -15);
+        guideRect.anchorMin = guideRect.anchorMax = guideRect.pivot = Vector2.zero;
+        guideRect.anchoredPosition = new Vector2(215, 20);
+        ui.tutorialButton = Button(root.transform, "Volver al tutorial", "Volver al tutorial", 0, 0, 180, 40);
+        var tutorialRect = (RectTransform)ui.tutorialButton.transform;
+        tutorialRect.anchorMin = tutorialRect.anchorMax = tutorialRect.pivot = Vector2.zero;
+        tutorialRect.anchoredPosition = new Vector2(20, 20);
         ui.completionPanel = Panel(root.transform, "Nivel completado", 620, 250, new Color(0.08f, 0.09f, 0.105f, 0.98f)).gameObject;
         ui.completionTitleText = Label(ui.completionPanel.transform, "Titulo", "Tutorial completado", 24, 25, 572, 64, 26, true);
         ui.completionDescriptionText = Label(ui.completionPanel.transform, "Detalle", "Has terminado el tutorial.", 24, 96, 572, 52, 17);
@@ -74,29 +104,30 @@ public static class BuildTutorialCanvas
         var shadeRect = shade.GetComponent<RectTransform>(); shadeRect.anchorMin = Vector2.zero; shadeRect.anchorMax = Vector2.one; shadeRect.offsetMin = shadeRect.offsetMax = Vector2.zero;
         shade.GetComponent<Image>().color = new Color(0, 0, 0, 0.62f);
         ui.guidePanel = shade;
-        var panel = Panel(shade.transform, "Guia", 960, 600, new Color(0.075f, 0.085f, 0.1f, 0.99f));
+        var panel = Panel(shade.transform, "Guia", 740, 640, new Color(0.94f, 0.94f, 0.94f, 1));
         ui.guideContent = panel;
-        ui.stageTitleText = Label(panel, "Titulo", "Tutorial", 28, 22, 900, 38, 29, true);
-        ui.stageObjectiveText = Label(panel, "Objetivo", "Llega al granero. Recoge y prueba cada poder por el camino.", 28, 68, 900, 28, 18);
+        ui.stageTitleText = Label(panel, "Titulo", "Tutorial", 24, 16, 692, 32, 23, true);
+        ui.stageObjectiveText = Label(panel, "Objetivo", "Llega al granero. Recoge y prueba cada poder por el camino.", 24, 55, 692, 38, 16);
         ui.stageObjectiveText.color = muted;
-        Label(panel, "Controles", "A / D o ← / →  Mover     Espacio / W / ↑  Saltar     Clic izquierdo  Disparar", 28, 112, 900, 28, 19, true);
-        Label(panel, "Doble salto", "Con Pluma: doble salto. Morir, caer o pulsar R resta 5 de vida máxima (mínimo 1).", 28, 146, 900, 26, 17);
+        Label(panel, "Controles", "Mover: A/D o flechas    Saltar: Espacio\nDisparar: Clic izquierdo    Reiniciar: R    Ayuda: H", 24, 100, 692, 46, 16);
+        Label(panel, "Doble salto", "Con Pluma: doble salto. Morir, caer o R resta 5 de vida máxima (mínimo 1).", 24, 153, 692, 40, 15);
         string[] icons = { "apple.png", "botikin.png", "citrus.png", "pluma.png", "powerup resistencias.png", "camisa.png", "lanzpiedra.png", "Chicken.png" };
-        string[] titles = { "Apple · permanente", "Botiquín · instantáneo", "Citrus · 10 segundos", "Pluma · 5 segundos", "Resistencia · 10 segundos", "Camisa · 5 segundos", "Lanzapiedra · 5 disparos", "Chicken / AK · 10 segundos" };
+        string[] titles = { "Apple · permanente", "Botiquín · instantáneo", "Citrus · hasta salir del nivel", "Pluma · hasta salir del nivel", "Resistencia · 10 segundos", "Camisa · 10 segundos", "Lanzapiedra · 5 disparos", "Chicken / AK · 15 segundos" };
         string[] descriptions = { "+10 de vida y +1 de daño. Se guarda.", "Cura 2 corazones, sin superar el máximo.", "+50% de movimiento y velocidad de disparo.", "Permite un segundo salto en el aire.", "No recibes daño mientras dura el efecto.", "Minigun muy rápida y munición ilimitada.", "Tiros lentos y letales. Sin límite de tiempo.", "Disparo rápido; luego vuelve la pistola." };
         for (int i = 0; i < icons.Length; i++)
         {
-            float x = i % 2 == 0 ? 28 : 488, y = 194 + (i / 2) * 76;
-            var card = Rect(panel, "Poder " + i, x, y, 444, 66);
-            var bg = card.gameObject.AddComponent<Image>(); bg.color = new Color(0.13f, 0.145f, 0.16f); bg.raycastTarget = false;
-            var icon = Rect(card, "Icono", 10, 12, 40, 40).gameObject.AddComponent<Image>();
+            var card = Rect(panel, "Poder " + i, 24, 200 + i * 42, 692, 38);
+            var icon = Rect(card, "Icono", 0, 3, 32, 32).gameObject.AddComponent<Image>();
             icon.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Pickups/" + icons[i]); icon.preserveAspect = true; icon.raycastTarget = false;
-            Label(card, "Nombre", titles[i], 62, 8, 375, 25, 17, true);
-            var description = Label(card, "Explicacion", descriptions[i], 62, 35, 375, 23, 15); description.color = muted;
+            Label(card, "Nombre", titles[i], 46, 0, 646, 18, 15, true);
+            Label(card, "Explicacion", descriptions[i], 46, 19, 646, 19, 15);
         }
-        Label(panel, "Pausa", "Juego en pausa · H abre y cierra esta guía.", 28, 536, 550, 30, 16);
-        ui.continueButton = Button(panel, "Empezar o continuar", "Empezar  [Enter]", 676, 528, 256, 44);
+        Label(panel, "Pausa", "Guía: H. Nivel 6: acércate a una de las dos puertas y pulsa E para elegir.", 24, 547, 692, 24, 15);
+        ui.guideTutorialButton = Button(panel, "Volver al tutorial", "Volver al tutorial", 24, 586, 240, 36);
+        ui.continueButton = Button(panel, "Empezar o continuar", "Empezar  [Enter]", 476, 586, 240, 36);
         ui.continueText = ui.continueButton.GetComponentInChildren<Text>();
+        foreach (var label in panel.GetComponentsInChildren<Text>()) label.color = Color.black;
+        foreach (var button in panel.GetComponentsInChildren<Button>()) button.GetComponent<Image>().color = new Color(0.78f, 0.78f, 0.78f);
         PolishCombatAndLayout.ConfigureHearts(ui);
         ui.ConfigureStageText();
         if (Object.FindAnyObjectByType<EventSystem>() == null)

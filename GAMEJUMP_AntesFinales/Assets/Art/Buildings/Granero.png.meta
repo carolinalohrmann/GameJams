@@ -1,0 +1,767 @@
+fileFormatVersion: 2
+guid: 5cb3675226da6ae4194c739fbcfb9401
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6551943722853504816
+    second: Granero_0
+  - first:
+      213: 1756832418577716761
+    second: Granero_1
+  - first:
+      213: -1329788709864990025
+    second: Granero_2
+  - first:
+      213: 4228273874164287083
+    second: Granero_3
+  - first:
+      213: 2130347841560500156
+    second: Granero_4
+  - first:
+      213: 8719665263942799176
+    second: Granero_5
+  - first:
+      213: -4284434412024439546
+    second: Granero_6
+  - first:
+      213: -484930533753014325
+    second: Granero_7
+  - first:
+      213: -9193575820535194683
+    second: Granero_8
+  - first:
+      213: -8338182912200615165
+    second: Granero_9
+  - first:
+      213: -7711816958869964393
+    second: Granero_10
+  - first:
+      213: 7451661984973819663
+    second: Granero_11
+  - first:
+      213: 6779629391408348497
+    second: Granero_12
+  - first:
+      213: -2388749500371505342
+    second: Granero_13
+  - first:
+      213: -808195551260693637
+    second: Granero_14
+  - first:
+      213: 218402960808231858
+    second: Granero_15
+  - first:
+      213: -1726201520110403151
+    second: Granero_16
+  - first:
+      213: -7054825162886144396
+    second: Granero_17
+  - first:
+      213: 5984904749992649674
+    second: Granero_18
+  - first:
+      213: -2343771702258805220
+    second: Granero_19
+  - first:
+      213: 7278271279674112868
+    second: Granero_20
+  - first:
+      213: 8093368785257658651
+    second: Granero_21
+  - first:
+      213: -118933845230254115
+    second: Granero_22
+  - first:
+      213: 7945846962724247829
+    second: Granero_23
+  - first:
+      213: 3301475381129224774
+    second: Granero_24
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 9
+  spritePivot: {x: 0.5, y: 0.091796875}
+  spritePixelsToUnits: 256
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Granero_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1519
+        height: 1009
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d867f2d5e1d215a0800000000000000
+      internalID: -6551943722853504816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_1
+      rect:
+        serializedVersion: 2
+        x: 712
+        y: 991
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 916173fc6c5816810800000000000000
+      internalID: 1756832418577716761
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_2
+      rect:
+        serializedVersion: 2
+        x: 760
+        y: 991
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ba1c22c634ab8de0800000000000000
+      internalID: -1329788709864990025
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_3
+      rect:
+        serializedVersion: 2
+        x: 813
+        y: 989
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b6680aaafa8ddaa30800000000000000
+      internalID: 4228273874164287083
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_4
+      rect:
+        serializedVersion: 2
+        x: 830
+        y: 936
+        width: 49
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb7db382314809d10800000000000000
+      internalID: 2130347841560500156
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_5
+      rect:
+        serializedVersion: 2
+        x: 878
+        y: 959
+        width: 8
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84f8f99db59720970800000000000000
+      internalID: 8719665263942799176
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_6
+      rect:
+        serializedVersion: 2
+        x: 910
+        y: 959
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60dd2d72a91aa84c0800000000000000
+      internalID: -4284434412024439546
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_7
+      rect:
+        serializedVersion: 2
+        x: 919
+        y: 954
+        width: 17
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc739e2bf3e2549f0800000000000000
+      internalID: -484930533753014325
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_8
+      rect:
+        serializedVersion: 2
+        x: 934
+        y: 942
+        width: 17
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5cb1169308bd96080800000000000000
+      internalID: -9193575820535194683
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_9
+      rect:
+        serializedVersion: 2
+        x: 952
+        y: 945
+        width: 23
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30bdc06a1d2d84c80800000000000000
+      internalID: -8338182912200615165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_10
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 727
+        width: 93
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 799f8b9b55f1af490800000000000000
+      internalID: -7711816958869964393
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_11
+      rect:
+        serializedVersion: 2
+        x: 912
+        y: 928
+        width: 24
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f0f85a0481f996760800000000000000
+      internalID: 7451661984973819663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_12
+      rect:
+        serializedVersion: 2
+        x: 974
+        y: 935
+        width: 7
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15d31bfe205161e50800000000000000
+      internalID: 6779629391408348497
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_13
+      rect:
+        serializedVersion: 2
+        x: 1006
+        y: 909
+        width: 81
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24fe6fc4cf479ded0800000000000000
+      internalID: -2388749500371505342
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_14
+      rect:
+        serializedVersion: 2
+        x: 30
+        y: 423
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b7b2e0a9d66b8c4f0800000000000000
+      internalID: -808195551260693637
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_15
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 327
+        width: 5
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b34ed0f55ce70300800000000000000
+      internalID: 218402960808231858
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_16
+      rect:
+        serializedVersion: 2
+        x: 1472
+        y: 191
+        width: 13
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b1841ffcdc4b08e0800000000000000
+      internalID: -1726201520110403151
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_17
+      rect:
+        serializedVersion: 2
+        x: 70
+        y: 167
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 47e1fa574e9381e90800000000000000
+      internalID: -7054825162886144396
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_18
+      rect:
+        serializedVersion: 2
+        x: 1471
+        y: 154
+        width: 14
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac32cd52927ae0350800000000000000
+      internalID: 5984904749992649674
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_19
+      rect:
+        serializedVersion: 2
+        x: 104
+        y: 103
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c16504cfd00497fd0800000000000000
+      internalID: -2343771702258805220
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_20
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 73
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46b37ebba2d910560800000000000000
+      internalID: 7278271279674112868
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_21
+      rect:
+        serializedVersion: 2
+        x: 1376
+        y: 47
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b197489970c615070800000000000000
+      internalID: 8093368785257658651
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_22
+      rect:
+        serializedVersion: 2
+        x: 1350
+        y: 31
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd787434c46795ef0800000000000000
+      internalID: -118933845230254115
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_23
+      rect:
+        serializedVersion: 2
+        x: 1328
+        y: 17
+        width: 14
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5199bc4b6b1554e60800000000000000
+      internalID: 7945846962724247829
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Granero_24
+      rect:
+        serializedVersion: 2
+        x: 1330
+        y: 21
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 642a7eefd5231dd20800000000000000
+      internalID: 3301475381129224774
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Granero_0: -6551943722853504816
+      Granero_1: 1756832418577716761
+      Granero_10: -7711816958869964393
+      Granero_11: 7451661984973819663
+      Granero_12: 6779629391408348497
+      Granero_13: -2388749500371505342
+      Granero_14: -808195551260693637
+      Granero_15: 218402960808231858
+      Granero_16: -1726201520110403151
+      Granero_17: -7054825162886144396
+      Granero_18: 5984904749992649674
+      Granero_19: -2343771702258805220
+      Granero_2: -1329788709864990025
+      Granero_20: 7278271279674112868
+      Granero_21: 8093368785257658651
+      Granero_22: -118933845230254115
+      Granero_23: 7945846962724247829
+      Granero_24: 3301475381129224774
+      Granero_3: 4228273874164287083
+      Granero_4: 2130347841560500156
+      Granero_5: 8719665263942799176
+      Granero_6: -4284434412024439546
+      Granero_7: -484930533753014325
+      Granero_8: -9193575820535194683
+      Granero_9: -8338182912200615165
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

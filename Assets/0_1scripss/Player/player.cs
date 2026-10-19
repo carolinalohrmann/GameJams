@@ -28,13 +28,34 @@ public class player : MonoBehaviour
     public float MinigunRemaining => weapon == Weapon.Minigun ? Mathf.Max(0, minigunUntil - Time.time) : 0;
     public float AKRemaining => Mathf.Max(0, akUntil - Time.time);
     public float MoveSpeed => speed * (CitrusRemaining > 0 ? 1.5f : 1);
-    public float FireDelay => (weapon == Weapon.Minigun ? 0.045f : weapon == Weapon.Rocks ? 0.9f : HasAK ? 0.13f : normalFireDelay) / (CitrusRemaining > 0 ? 1.5f : 1);
-    public string WeaponName => weapon == Weapon.Minigun ? "Minigun" : weapon == Weapon.Rocks ? "Piedras " + RockAmmo + "/5" : HasAK ? "AK" : "Pistola";
+    public float FireDelay
+    {
+        get
+        {
+            float pausaDisparo = normalFireDelay;
+            if (weapon == Weapon.Minigun) pausaDisparo = 0.045f;
+            else if (weapon == Weapon.Rocks) pausaDisparo = 0.9f;
+            else if (HasAK) pausaDisparo = 0.13f;
+
+            if (CitrusRemaining > 0) pausaDisparo /= 1.5f;
+            return pausaDisparo;
+        }
+    }
+    public string WeaponName
+    {
+        get
+        {
+            if (weapon == Weapon.Minigun) return "Minigun";
+            if (weapon == Weapon.Rocks) return "Piedras " + RockAmmo + "/5";
+            if (HasAK) return "AK";
+            return "Pistola";
+        }
+    }
     enum Weapon { Normal, Minigun, Rocks }
     Weapon weapon;
     Rigidbody2D body;
     Collider2D hitbox;
-    float movement, jumpBuffer, groundedUntil, nextShot, invincibleUntil, citrusUntil, immunityUntil, minigunUntil, akUntil, featherUntil;
+    float movement, jumpBuffer, groundedUntil, nextShot, citrusUntil, immunityUntil, minigunUntil, akUntil, featherUntil;
     int facing = 1;
     bool usedAirJump;
     Vector3 spawn;
@@ -94,9 +115,6 @@ public class player : MonoBehaviour
         float horizontalSpeed = movement * MoveSpeed;
         if (horizontalSpeed != 0)
         {
-            // Stop pushing into side contacts so friction cannot hold a jump
-            // against platforms or enemies. Enemies still require real contact
-            // before stopping, so their contact damage continues to work.
             float sign = Mathf.Sign(horizontalSpeed);
             int walls = hitbox.Cast(Vector2.right * sign, new ContactFilter2D { useTriggers = false }, wallHits,
                 Mathf.Abs(horizontalSpeed) * Time.fixedDeltaTime + 0.025f);
@@ -133,8 +151,6 @@ public class player : MonoBehaviour
         weaponVisual.sprite = weapon == Weapon.Minigun ? minigunSprite : weapon == Weapon.Rocks ? rockSprite : HasAK ? akSprite : null;
         weaponVisual.enabled = weaponVisual.sprite != null && !Dying;
         weaponVisual.flipX = facing < 0;
-        // The supplied images have different canvas sizes; fit their world width
-        // separately and align the barrel with the pistol drawn into the horse.
         bool rock = weapon == Weapon.Rocks;
         float width = rock ? 0.32f : weapon == Weapon.Minigun ? 0.65f : 0.7f;
         var offset = rock ? new Vector2(0.35f, 0.23f) : weapon == Weapon.Minigun ? new Vector2(0.30f, 0.23f) : new Vector2(0.27f, 0.20f);
@@ -162,7 +178,6 @@ public class player : MonoBehaviour
         if (rock)
         {
             shot.GetComponent<SpriteRenderer>().sprite = rockSprite;
-            // A large projectile with a collider fitted to its visible silhouette.
             shot.transform.localScale = Vector3.one * (0.85f / rockSprite.bounds.size.x);
             var rockCollider = shot.GetComponent<BoxCollider2D>();
             rockCollider.size = new Vector2(0.65f, 0.5f);
@@ -174,10 +189,9 @@ public class player : MonoBehaviour
     }
     public void Damage(int amount = 1)
     {
-        if (Dying || Time.time < invincibleUntil || ImmunityRemaining > 0 || (LevelOne.Instance != null && LevelOne.Instance.Completed)) return;
+        if (Dying || ImmunityRemaining > 0 || (LevelOne.Instance != null && LevelOne.Instance.Completed)) return;
         Health = Mathf.Max(0, Health - amount);
         GameAudio.Instance?.Cue(GameAudio.Sound.PlayerHurt);
-        invincibleUntil = Time.time + 1.2f;
         if (Health <= 0) StartCoroutine(Death());
     }
     public void KillInstantly()
@@ -202,40 +216,58 @@ public class player : MonoBehaviour
     {
         maxHealth = Health = BaseHealth;
         AttackDamage = 1;
-        if (persistUpgrades)
-        {
-            PlayerPrefs.SetInt(saveSlot + "MaxHealth", maxHealth);
-            PlayerPrefs.SetInt(saveSlot + "BaseHealth", BaseHealth);
-            PlayerPrefs.SetInt(saveSlot + "AttackDamage", AttackDamage);
-            PlayerPrefs.Save();
-        }
+        GuardarMejoras();
+    }
+    void GuardarMejoras()
+    {
+        if (!persistUpgrades) return;
+        PlayerPrefs.SetInt(saveSlot + "MaxHealth", maxHealth);
+        PlayerPrefs.SetInt(saveSlot + "BaseHealth", BaseHealth);
+        PlayerPrefs.SetInt(saveSlot + "AttackDamage", AttackDamage);
+        PlayerPrefs.Save();
     }
     public bool HasCollected(string id) => collectedApples.Contains(id);
     public bool ApplyPowerUp(PowerUp.Kind kind, string id, float durationSeconds = -1)
     {
-        float duration = durationSeconds > 0 ? durationSeconds : PowerUp.DefaultDuration(kind);
-        bool permanent = kind == PowerUp.Kind.Apple;
-        if (permanent && HasCollected(id)) return false;
+        float duracionEfecto = durationSeconds > 0 ? durationSeconds : PowerUp.DefaultDuration(kind);
+        bool esManzana = kind == PowerUp.Kind.Apple;
+        if (esManzana && HasCollected(id)) return false;
         switch (kind)
         {
-            case PowerUp.Kind.Apple: maxHealth += 10; Health = Mathf.Min(maxHealth, Health + 10); AttackDamage++; break;
-            case PowerUp.Kind.Medkit: Health = Mathf.Min(maxHealth, Health + 2); break;
-            case PowerUp.Kind.Citrus: citrusUntil = float.PositiveInfinity; break;
-            case PowerUp.Kind.Feather: featherUntil = float.PositiveInfinity; break;
-            case PowerUp.Kind.Resistance: immunityUntil = Time.time + duration; break;
-            case PowerUp.Kind.Shirt: weapon = Weapon.Minigun; minigunUntil = Time.time + duration; break;
-            case PowerUp.Kind.Rock: weapon = Weapon.Rocks; RockAmmo = 5; break;
-            case PowerUp.Kind.Chicken: akUntil = Time.time + duration; break;
+            case PowerUp.Kind.Apple:
+                maxHealth += 10;
+                Health = Mathf.Min(maxHealth, Health + 10);
+                AttackDamage++;
+                break;
+            case PowerUp.Kind.Medkit:
+                Health = Mathf.Min(maxHealth, Health + 2);
+                break;
+            case PowerUp.Kind.Citrus:
+                citrusUntil = float.PositiveInfinity;
+                break;
+            case PowerUp.Kind.Feather:
+                featherUntil = float.PositiveInfinity;
+                break;
+            case PowerUp.Kind.Resistance:
+                immunityUntil = Time.time + duracionEfecto;
+                break;
+            case PowerUp.Kind.Shirt:
+                weapon = Weapon.Minigun;
+                minigunUntil = Time.time + duracionEfecto;
+                break;
+            case PowerUp.Kind.Rock:
+                weapon = Weapon.Rocks;
+                RockAmmo = 5;
+                break;
+            case PowerUp.Kind.Chicken:
+                akUntil = Time.time + duracionEfecto;
+                break;
         }
-        if (permanent) collectedApples.Add(id);
-        if (permanent && persistUpgrades)
+        if (esManzana)
         {
-            PlayerPrefs.SetInt(saveSlot + "MaxHealth", maxHealth);
-            PlayerPrefs.SetInt(saveSlot + "BaseHealth", BaseHealth);
-            PlayerPrefs.SetInt(saveSlot + "AttackDamage", AttackDamage);
-            PlayerPrefs.Save();
+            collectedApples.Add(id);
+            GuardarMejoras();
         }
-        // A new weapon or buff can be tried immediately; subsequent shots respect its delay.
         nextShot = Time.time;
         GameAudio.Instance?.Pickup(kind);
         UpdateWeaponVisual();
@@ -260,7 +292,6 @@ public class player : MonoBehaviour
         Health = maxHealth;
         transform.position = spawn;
         body.linearVelocity = Vector2.zero;
-        invincibleUntil = Time.time + 1.5f;
         jumpBuffer = groundedUntil = 0;
         usedAirJump = false;
         animationState = null;
